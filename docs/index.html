@@ -1,30 +1,35 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CSE Internship Scanner</title>
+  <title>Internship Scanner</title>
   <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 </head>
 <body>
   <header>
-    <h1>?? Internship Scanner</h1>
-    <p>Real-time aggregation of Software, Data, and Engineering Internships.</p>
-    
-    <div class="controls">
-      <div class="filters" id="category-filters">
-        <button class="filter-btn active" data-category="All">All Internships</button>
-        <button class="filter-btn" data-category="Software Engineering">Software</button>
-        <button class="filter-btn" data-category="Data & AI">Data & AI</button>
-        <button class="filter-btn" data-category="Cloud/DevOps">Cloud/DevOps</button>
-        <button class="filter-btn" data-category="Cybersecurity">Cybersecurity</button>
+    <div class="header-container">
+      <div class="header-titles">
+        <h1>Internship Scanner</h1>
+        <p>Real-time aggregation of Software, Data, and Engineering Internships.</p>
       </div>
-      <div class="sort">
-        <label for="sort-select">Sort By:</label>
-        <select id="sort-select">
-          <option value="recent">Most Recent</option>
-          <option value="score">Highest Match</option>
-        </select>
+      
+      <div class="controls">
+        <div class="filters" id="category-filters">
+          <button class="filter-btn active" data-category="All">All Internships</button>
+          <button class="filter-btn" data-category="Software Engineering">Software</button>
+          <button class="filter-btn" data-category="Data & AI">Data & AI</button>
+          <button class="filter-btn" data-category="Cloud/DevOps">Cloud/DevOps</button>
+          <button class="filter-btn" data-category="Cybersecurity">Cybersecurity</button>
+        </div>
+        <div class="sort">
+          <label for="sort-select">Sort By:</label>
+          <select id="sort-select">
+            <option value="recent">Most Recent</option>
+            <option value="score">Highest Match</option>
+          </select>
+        </div>
       </div>
     </div>
   </header>
