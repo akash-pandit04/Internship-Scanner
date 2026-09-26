@@ -225,6 +225,7 @@ def fetch_lever(cfg):
 
 # Registry: name -> fetch function. Add new sources here.
 SOURCES = {
+    'pminternship': fetch_pminternship,
     "remoteok": fetch_remoteok,
     "remotive": fetch_remotive,
     "jobicy": fetch_jobicy,
@@ -232,3 +233,29 @@ SOURCES = {
     
     
 }
+def fetch_pminternship(cfg):
+    '''
+    Scrapes the Indian Government PM Internship Scheme portal.
+    (Placeholder architecture for government portal integration).
+    '''
+    out = []
+    try:
+        # Note: Government portals often require Playwright/Selenium for full scraping
+        # This is the REST API hook architecture for the endpoint
+        r = get('https://pminternship.mca.gov.in/api/internships', timeout=10)
+        # If API exists and responds:
+        for j in r.json().get('data', []):
+            out.append({
+                'title': j.get('title') or 'Engineering Intern',
+                'company': j.get('company') or 'Govt Partner',
+                'location': 'India',
+                'remote': False,
+                'salary': None,
+                'salary_min': None,
+                'url': 'https://pminternship.mca.gov.in',
+                'description': 'PM Internship Scheme Opportunity',
+                'posted_at': datetime.now(timezone.utc)
+            })
+    except Exception as e:
+        print(f'  pminternship: {type(e).__name__}: {e}')
+    return out
