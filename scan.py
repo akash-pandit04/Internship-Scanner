@@ -156,5 +156,5 @@ class JobScannerEngine:
         return 0
 
 if __name__ == "__main__":
-    engine = JobScannerEngine(__file__)
+    engine = JobScannerEngine(Path(__file__).resolve().parent)
     sys.exit(engine.scan_and_aggregate())
