@@ -229,6 +229,6 @@ SOURCES = {
     "remotive": fetch_remotive,
     "jobicy": fetch_jobicy,
     "weworkremotely": fetch_weworkremotely,
-    "greenhouse": fetch_greenhouse,
-    "lever": fetch_lever,
+    
+    
 }
