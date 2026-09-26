@@ -1,4 +1,4 @@
-﻿{
+{
   "generated_at": "2026-09-27T00:00:00+00:00",
   "config": {
     "max_age_hours": 24
@@ -12,6 +12,7 @@
       "location": "Remote",
       "remote": true,
       "salary": "/hr",
+      "url": "https://jobs.siemens.com/jobs",
       "source": "greenhouse",
       "other_sources": [],
       "description": "Join our software development and testing team for an exciting 12-week summer internship. You will work with Python, PyTest, and MATLAB...",
@@ -29,6 +30,7 @@
       "location": "San Francisco, CA",
       "remote": false,
       "salary": "/hr",
+      "url": "https://openai.com/careers",
       "source": "lever",
       "other_sources": [],
       "description": "Looking for university students to research large language models...",
@@ -46,6 +48,7 @@
       "location": "Remote",
       "remote": true,
       "salary": "/hr",
+      "url": "https://jobs.siemens.com/jobs",
       "source": "greenhouse",
       "other_sources": [],
       "description": "Work on distributed systems and cloud infrastructure. Must be pursuing a degree in Computer Science.",
