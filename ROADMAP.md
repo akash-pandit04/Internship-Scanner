@@ -1,4 +1,4 @@
-# CSE Internship Scanner & SaaS Platform - Development Roadmap
+# Internship Scanner - Development Roadmap
 
 This roadmap outlines the step-by-step construction of the platform, ensuring it solves a massive real-world problem for students while perfectly aligning with the **Enterprise Architecture** (Python OOP, MATLAB, Software Testing, CI/CD).
 

@@ -1,4 +1,4 @@
-# CSE Internship Scanner & Auto-Applier (Freemium SaaS)
+# Internship Scanner
 
 A comprehensive data aggregation and web automation platform designed to find and auto-apply to Computer Science Engineering (CSE) Internships globally.
 
