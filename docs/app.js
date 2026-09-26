@@ -74,7 +74,7 @@ function filtered(ageOverride) {
     if (f.company && !j.company.toLowerCase().includes(f.company)) return false;
     if (f.cat) {
       const t = j.title.toLowerCase();
-      if (!CATS[f.cat].some(k => t.includes(k))) return false;
+      if (j.category !== f.cat && j.category) return false;
     }
     return true;
   });
