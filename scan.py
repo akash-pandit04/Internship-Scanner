@@ -102,6 +102,9 @@ class JobScannerEngine:
                 if not posted: continue
                 age_h = (now - posted).total_seconds() / 3600
                 if age_h > max_h or age_h < -1: continue
+
+                title_lower = raw.get('title', '').lower()
+                if 'intern' not in title_lower and 'co-op' not in title_lower and 'student' not in title_lower: continue
                 
                 m["found"] += 1
                 sc = scoring.score_job(raw, self.config)
