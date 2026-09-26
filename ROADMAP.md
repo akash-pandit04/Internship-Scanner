@@ -1,6 +1,6 @@
 # CSE Internship Scanner & SaaS Platform - Development Roadmap
 
-This roadmap outlines the step-by-step construction of the platform, ensuring it solves a massive real-world problem for students while perfectly aligning with the **Siemens Energy Target Stack** (Python OOP, MATLAB, Software Testing, CI/CD).
+This roadmap outlines the step-by-step construction of the platform, ensuring it solves a massive real-world problem for students while perfectly aligning with the **Enterprise Architecture** (Python OOP, MATLAB, Software Testing, CI/CD).
 
 ## Phase 1: Architecture & Foundations (Completed & Ongoing)
 *Objective: Build an enterprise-grade software foundation to prove architectural competence to recruiters.*

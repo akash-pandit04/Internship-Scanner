@@ -1,5 +1,5 @@
-﻿% CSE Internship Analytics Engine
-% Siemens Energy Target: MATLAB Data Processing & Statistical Analysis
+% CSE Internship Analytics Engine
+% Enterprise Target: MATLAB Data Processing & Statistical Analysis
 % This script reads the aggregated jobs.json, performs category distribution analysis,
 % and calculates the hiring volume to predict market trends.
 

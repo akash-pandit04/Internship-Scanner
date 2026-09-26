@@ -1,8 +1,8 @@
-﻿# CSE Internship Scanner & Auto-Applier (Freemium SaaS)
+# CSE Internship Scanner & Auto-Applier (Freemium SaaS)
 
 A comprehensive data aggregation and web automation platform designed to find and auto-apply to Computer Science Engineering (CSE) Internships globally.
 
-## The Architecture (Siemens Energy Target Stack)
+## The Architecture (Enterprise Architecture)
 This project is built using enterprise-level architecture, specifically aligning with modern software development and testing requirements:
 
 *   **Python (OOP):** Core engine handles global data aggregation, API routing, and Playwright-based browser automation for the 'Auto-Apply' tier.
