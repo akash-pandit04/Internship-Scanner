@@ -13,6 +13,7 @@ from sources.registry import SourceRegistry
 # Make sure adapters are registered
 import sources.adapters.legacy
 import sources.adapters.ashby
+import sources.adapters.smartrecruiters
 from eligibility import determine_eligibility, EligibilityStatus
 from schema import validate_job_schema, JobRecord
 
