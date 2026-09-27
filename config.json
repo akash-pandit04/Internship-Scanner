@@ -32,6 +32,13 @@
     "lever": {
       "enabled": true,
       "interval_minutes": 30
+    },
+    "ashby": {
+      "enabled": true,
+      "interval_minutes": 30,
+      "max_pages": 1,
+      "timeout": 15,
+      "max_retries": 3
     }
   }
 }

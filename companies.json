@@ -5,5 +5,15 @@
     "fivetran",
     "discord"
   ],
-  "lever": []
+  "lever": [],
+  "ashby": [
+    "notion",
+    "ramp",
+    "linear",
+    "ycombinator",
+    "replit",
+    "perplexity",
+    "opensea",
+    "plaid"
+  ]
 }

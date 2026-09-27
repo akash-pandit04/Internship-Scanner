@@ -12,6 +12,7 @@ from sources.registry import SourceRegistry
 
 # Make sure adapters are registered
 import sources.adapters.legacy
+import sources.adapters.ashby
 from eligibility import determine_eligibility, EligibilityStatus
 from schema import validate_job_schema, JobRecord
 
@@ -255,7 +256,7 @@ class InternshipScannerPipeline:
                 continue
                 
             # 3. Eligibility
-            eligibility = determine_eligibility(raw["title"], raw["description"], raw["employment_type"])
+            eligibility = determine_eligibility(raw.get("title", ""), raw.get("description", ""), raw.get("employment_type", ""))
             if eligibility == EligibilityStatus.NON_INTERNSHIP:
                 metrics["non_internship"] += 1
                 rejected_jobs.append({"reason": "non_internship", "job": raw})
