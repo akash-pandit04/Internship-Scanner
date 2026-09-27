@@ -29,7 +29,7 @@ async function init() {
       const genDate = new Date(data.generated_at);
       DOM.status.textContent = `Dataset updated: ${genDate.toLocaleString()}`;
     } else {
-      DOM.status.textContent = 'Dataset loaded.';
+      DOM.status.textContent = 'Dataset loaded';
     }
     
     populateCategories(allJobs);
@@ -38,7 +38,7 @@ async function init() {
     
   } catch (error) {
     console.error('Failed to load dataset:', error);
-    DOM.status.textContent = 'Failed to load dataset.';
+    DOM.status.textContent = 'Dataset unavailable';
     DOM.errorState.hidden = false;
     DOM.container.hidden = true;
   }
@@ -163,10 +163,6 @@ function render() {
     
     if (job.remote === true) {
       metaBox.innerHTML += `<span class="meta-tag remote">Remote</span>`;
-    } else if (job.location) {
-      metaBox.innerHTML += `<span class="meta-tag">${escapeHTML(job.location)}</span>`;
-    } else {
-      metaBox.innerHTML += `<span class="meta-tag">Location Unknown</span>`;
     }
     
     if (job.employment_type) {
@@ -180,27 +176,34 @@ function render() {
     }
     card.appendChild(metaBox);
     
-    // Details
+    // Details (Location, Posted Date, Score)
     const details = document.createElement('div');
     details.className = 'card-details';
     
+    // Location explicitly shown if not remote
+    if (job.location && job.remote !== true) {
+      details.innerHTML += `<div class="card-location">📍 ${escapeHTML(job.location)}</div>`;
+    } else if (!job.location && job.remote !== true) {
+      details.innerHTML += `<div class="card-location">📍 Location Unknown</div>`;
+    }
+    
     // Freshness
-    let freshnessHtml = `<div>📅 Posting date unavailable</div>`;
+    let freshnessHtml = `<div class="card-posted">📅 Posting date unavailable</div>`;
     if (job.posted_at) {
-      freshnessHtml = `<div>📅 ${getRelativeTimeString(new Date(job.posted_at))}</div>`;
+      freshnessHtml = `<div class="card-posted">📅 ${getRelativeTimeString(new Date(job.posted_at))}</div>`;
     }
     details.innerHTML += freshnessHtml;
     
     // Score
     if (typeof job.score === 'number') {
-      let scoreText = `Score based on Phase 3 relevance model`;
+      let scoreText = `Phase 3 relevance model`;
       if (Array.isArray(job.skills) && job.skills.length > 0) {
         scoreText = `Matched: ${job.skills.map(escapeHTML).join(' · ')}`;
       }
       details.innerHTML += `
-        <div class="score-info">
-          <span class="score-title">Score: ${job.score}</span><br>
-          ${scoreText}
+        <div class="score-box">
+          <span class="score-title">Relevance · ${job.score}</span>
+          <span class="score-subtitle">${scoreText}</span>
         </div>
       `;
     }
@@ -208,15 +211,15 @@ function render() {
     card.appendChild(details);
     
     // Actions (Source & Apply)
-    const actions = document.createElement('div');
-    actions.className = 'card-actions';
+    const footer = document.createElement('div');
+    footer.className = 'card-footer';
     
     const sourceDisplay = job.source ? `Source: ${job.source}` : 'Source unknown';
-    actions.innerHTML = `
-      <div class="source-link">${escapeHTML(sourceDisplay)}</div>
-      <a href="${escapeHTML(job.url || '#')}" class="btn-primary" target="_blank" rel="noopener noreferrer" aria-label="Apply for ${escapeHTML(job.title)}">Apply</a>
+    footer.innerHTML = `
+      <div class="source-text">${escapeHTML(sourceDisplay)}</div>
+      <a href="${escapeHTML(job.url || '#')}" class="apply-link" target="_blank" rel="noopener noreferrer" aria-label="Apply for ${escapeHTML(job.title)}">Apply ↗</a>
     `;
-    card.appendChild(actions);
+    card.appendChild(footer);
     
     fragment.appendChild(card);
   });

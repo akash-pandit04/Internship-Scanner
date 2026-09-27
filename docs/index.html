@@ -11,20 +11,35 @@
 <body>
 
 <header class="app-header">
-  <div class="brand">Internship Scanner</div>
-  <div class="meta-info">
-    <span id="update-status">Loading dataset...</span>
+  <div class="container header-container">
+    <div class="brand-group">
+      <div class="brand">Internship Scanner</div>
+      <div class="brand-tagline">Find real internships from multiple sources.</div>
+    </div>
+    <div class="meta-info">
+      <span id="update-status">Loading dataset...</span>
+    </div>
   </div>
 </header>
 
-<main class="container">
+<main>
   
-  <section class="controls" aria-label="Search and filter">
-    <div class="search-bar">
-      <label for="f-search" class="sr-only">Search</label>
-      <input id="f-search" type="search" placeholder="Search title, company, or skills...">
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="container hero-container">
+      <h1 id="hero-title" class="hero-title">Find your next internship</h1>
+      <p class="hero-subtitle">Find internships from multiple public job sources.</p>
+      
+      <div class="search-bar">
+        <label for="f-search" class="sr-only">Search internships</label>
+        <div class="search-input-wrapper">
+          <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input id="f-search" type="search" placeholder="Search internships by title, company, or skill...">
+        </div>
+      </div>
     </div>
-    
+  </section>
+
+  <section class="controls container" aria-label="Filters">
     <div class="filters">
       <div class="filter-group">
         <label for="f-cat">Category</label>
@@ -34,9 +49,9 @@
       </div>
       
       <div class="filter-group">
-        <label for="f-remote">Location</label>
+        <label for="f-remote">Remote Status</label>
         <select id="f-remote">
-          <option value="all">All Locations</option>
+          <option value="all">Any Status</option>
           <option value="remote">Remote Only</option>
         </select>
       </div>
@@ -56,25 +71,27 @@
     </div>
   </section>
   
-  <section class="results-header" aria-label="Results count">
-    <h1 class="results-title">Available Internships</h1>
-    <span id="results-count" class="badge">0</span>
+  <section class="results container" aria-label="Internship listings">
+    <div class="results-header">
+      <h2 class="results-title">Available Internships</h2>
+      <span id="results-count" class="badge">0</span>
+    </div>
+
+    <div id="results-container" class="cards-grid">
+      <!-- Cards will be injected here -->
+    </div>
+    
+    <div id="empty-state" class="empty-state" hidden>
+      <h2>No internships match your filters.</h2>
+      <p>Try adjusting your search criteria or clearing filters.</p>
+      <button id="btn-empty-clear" class="btn-primary">Clear Filters</button>
+    </div>
+    
+    <div id="error-state" class="error-state" hidden>
+      <h2>Unable to load internship dataset.</h2>
+      <p>The dataset might be unavailable or regenerating.</p>
+    </div>
   </section>
-  
-  <section id="results-container" class="cards-grid" aria-label="Internship listings">
-    <!-- Cards will be injected here -->
-  </section>
-  
-  <div id="empty-state" class="empty-state" hidden>
-    <h2>No internships match your filters.</h2>
-    <p>Try adjusting your search criteria or clearing filters.</p>
-    <button id="btn-empty-clear" class="btn-primary">Clear Filters</button>
-  </div>
-  
-  <div id="error-state" class="error-state" hidden>
-    <h2>Unable to load internship dataset.</h2>
-    <p>The dataset might be unavailable or regenerating.</p>
-  </div>
   
 </main>
 
