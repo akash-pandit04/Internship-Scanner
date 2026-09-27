@@ -239,7 +239,7 @@ $("btn-refresh").onclick = refresh;
    Needs a fine-grained PAT (this repo only, Actions read+write) pasted once
    per device; it lives ONLY in this browser's localStorage. Without a token,
    falls back to opening the Actions page (one click there). ---- */
-const REPO = "mjjaber/job-scanner";
+const REPO = "OWNER/REPOSITORY"; // Update to your repository
 const ACTIONS_URL = `https://github.com/${REPO}/actions/workflows/scan.yml`;
 
 $("btn-scan").onclick = async () => {

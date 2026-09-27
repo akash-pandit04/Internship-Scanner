@@ -1,8 +1,8 @@
-﻿name: Scan Internships (CI/CD Pipeline)
+name: Scan Internships (CI/CD Pipeline)
 
 on:
   schedule:
-    - cron: "*/15 * * * *"
+    - cron: "*/30 * * * *"
   workflow_dispatch:
 
 jobs:
@@ -20,7 +20,7 @@ jobs:
       - name: Install Dependencies
         run: |
           pip install -r requirements.txt
-          pip install pytest playwright
+          pip install pytest
 
       - name: Software Testing (PyTest)
         run: |
@@ -29,6 +29,10 @@ jobs:
       - name: Run OOP Scanner & Aggregator
         run: |
           python scan.py
+
+      - name: Validate Output Data Quality
+        run: |
+          python validate_output.py
 
       - name: Commit and Push Data
         run: |

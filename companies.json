@@ -1,0 +1,9 @@
+{
+  "greenhouse": [
+    "canonical",
+    "stripe",
+    "fivetran",
+    "discord"
+  ],
+  "lever": []
+}

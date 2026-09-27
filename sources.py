@@ -223,39 +223,42 @@ def fetch_lever(cfg):
     return out
 
 
+# ---------------------------------------------------------------- Arbeitnow
+def fetch_arbeitnow(cfg):
+    out = []
+    r = get("https://www.arbeitnow.com/api/job-board-api")
+    for j in r.json().get("data", []):
+        try:
+            posted = datetime.fromtimestamp(j["created_at"], tz=timezone.utc)
+        except (KeyError, TypeError, ValueError):
+            continue
+            
+        emp_type = ""
+        if j.get("job_types"):
+            emp_type = ", ".join(j["job_types"])
+            
+        out.append({
+            "title": j.get("title") or "", 
+            "company": j.get("company_name") or "",
+            "location": j.get("location") or "Remote", 
+            "remote": bool(j.get("remote")),
+            "salary": None, 
+            "salary_min": None,
+            "url": j.get("url") or "",
+            "description": strip_html(j.get("description") or "")[:1200],
+            "employment_type": emp_type,
+            "posted_at": posted,
+        })
+    return out
+
 # Registry: name -> fetch function. Add new sources here.
 SOURCES = {
-    'pminternship': fetch_pminternship,
-    "remoteok": fetch_remoteok,
-    "remotive": fetch_remotive,
-    "jobicy": fetch_jobicy,
-    "weworkremotely": fetch_weworkremotely,
-    
-    
+    'remoteok': fetch_remoteok,
+    'remotive': fetch_remotive,
+    'jobicy': fetch_jobicy,
+    'weworkremotely': fetch_weworkremotely,
+    'greenhouse': fetch_greenhouse,
+    'lever': fetch_lever,
+    'arbeitnow': fetch_arbeitnow,
 }
-def fetch_pminternship(cfg):
-    '''
-    Scrapes the Indian Government PM Internship Scheme portal.
-    (Placeholder architecture for government portal integration).
-    '''
-    out = []
-    try:
-        # Note: Government portals often require Playwright/Selenium for full scraping
-        # This is the REST API hook architecture for the endpoint
-        r = get('https://pminternship.mca.gov.in/api/internships', timeout=10)
-        # If API exists and responds:
-        for j in r.json().get('data', []):
-            out.append({
-                'title': j.get('title') or 'Engineering Intern',
-                'company': j.get('company') or 'Govt Partner',
-                'location': 'India',
-                'remote': False,
-                'salary': None,
-                'salary_min': None,
-                'url': 'https://pminternship.mca.gov.in',
-                'description': 'PM Internship Scheme Opportunity',
-                'posted_at': datetime.now(timezone.utc)
-            })
-    except Exception as e:
-        print(f'  pminternship: {type(e).__name__}: {e}')
-    return out
+

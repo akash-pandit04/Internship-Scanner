@@ -1,19 +1,20 @@
-"""
-Object-Oriented Job Scanner Engine
-Refactored to meet Siemens Energy OOP requirements.
-"""
 import json
+import logging
 import re
 import sys
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Dict, List, Any
 
 import scoring
 import sources
+from eligibility import determine_eligibility, EligibilityStatus
+from schema import validate_job_schema, JobRecord
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 
 class JobCategorizer:
-    """Automatically categorizes internships based on keywords."""
     def __init__(self):
         self.categories = {
             "Data & AI": ["data", "analytics", "machine learning", "ai", "artificial intelligence"],
@@ -22,142 +23,183 @@ class JobCategorizer:
             "Hardware Engineering": ["hardware", "electrical", "systems", "circuit", "fpga"]
         }
         
-    def categorize(self, title, description):
+    def categorize(self, title: str, description: str) -> List[str]:
         text = f"{title} {description}".lower()
+        cats = []
         for category, keywords in self.categories.items():
             if any(kw in text for kw in keywords):
-                return category
-        return "Software Engineering"  # Default
+                cats.append(category)
+        if not cats:
+            cats.append("Software Engineering")
+        return cats
 
-class JobScannerEngine:
-    """Core Object-Oriented engine to orchestrate data aggregation."""
+class InternshipScannerPipeline:
     def __init__(self, root_dir):
         self.root = Path(root_dir).resolve()
         self.out_file = self.root / "docs" / "data" / "jobs.json"
         self.config = self._load_config()
         self.categorizer = JobCategorizer()
         
-    def _load_config(self):
-        return json.loads((self.root / "config.json").read_text(encoding="utf-8-sig"))
-        
-    def _dedupe_key(self, title, company):
-        n = lambda s: re.sub(r"[^a-z0-9]+", "", (s or "").lower())
-        return f"{n(company)}|{n(title)}"
-        
-    def _load_previous(self):
+    def _load_config(self) -> Dict[str, Any]:
         try:
-            return json.loads(self.out_file.read_text(encoding="utf-8"))
+            return json.loads((self.root / "config.json").read_text(encoding="utf-8-sig"))
         except (FileNotFoundError, json.JSONDecodeError):
-            return {"jobs": [], "source_meta": {}}
+            logging.warning("No config.json found or invalid JSON. Using empty config.")
+            return {}
 
-    def _due_sources(self, meta, now):
-        names = []
-        for name in sources.SOURCES:
-            scfg = self.config.get("sources", {}).get(name, {})
-            if not scfg.get("enabled", True):
-                continue
-            last = (meta.get(name) or {}).get("last_run")
-            if last:
-                elapsed_min = (now - datetime.fromisoformat(last)).total_seconds() / 60
-                if elapsed_min < scfg.get("interval_minutes", 10) * 0.85:
-                    continue
-            names.append(name)
-        return names
-
-    def _run_source(self, name):
+    def fingerprint(self, job: Dict[str, Any]) -> str:
+        """Deterministic deduplication fingerprint."""
+        company = str(job.get("company", "")).strip().lower()
+        title = str(job.get("title", "")).strip().lower()
+        # Keep it simple and stable: company + title is usually enough. URL might change slightly.
+        # But user requested: company + title + location + application URL
+        location = str(job.get("location", "")).strip().lower()
+        url = str(job.get("url", "")).strip().lower()
+        
+        raw_fp = f"{company}|{title}|{location}|{url}"
+        return re.sub(r"[^a-z0-9]+", "_", raw_fp)
+        
+    def is_fresh(self, raw_job: dict, now: datetime) -> bool:
+        max_age_hours = self.config.get("max_age_hours", 24)
+        posted_at = raw_job.get("posted_at")
+        if not posted_at:
+            return True # missing dates are accepted
         try:
-            raws = sources.SOURCES[name](self.config)
-            return name, raws, None
+            age = now - posted_at
+            return age.total_seconds() <= (max_age_hours * 3600)
+        except Exception:
+            return True # malformed handled safely
+
+    def fetch_source(self, name: str, fetch_func) -> List[Dict[str, Any]]:
+        logging.info(f"Fetching from {name}...")
+        try:
+            raws = fetch_func(self.config)
+            for r in raws:
+                r["source"] = name
+            return raws
         except Exception as e:
-            return name, [], f"{type(e).__name__}: {e}"
+            logging.error(f"Source {name} failed: {type(e).__name__}: {e}")
+            return []
 
-    def scan_and_aggregate(self):
-        n_titles = scoring.load_titles(self.root / self.config.get("job_titles_file", "job_titles.txt"))
-        print(f"Loaded {n_titles} internship titles/keywords.")
-
+    def run(self):
+        logging.info("Starting internship scanner pipeline...")
+        scoring.load_titles(self.root / self.config.get("job_titles_file", "job_titles.txt"))
+        
+        raw_jobs = []
         now = datetime.now(timezone.utc)
-        prev = self._load_previous()
-        meta = prev.get("source_meta", {})
-        jobs = {j["id"]: j for j in prev.get("jobs", [])}
-
-        names = self._due_sources(meta, now)
-        print(f"Scanning Aggregators: {', '.join(names) or '(none due)'}")
-
-        max_h = self.config.get("store_max_age_hours", 24)
-        total_new = 0
-
-        with ThreadPoolExecutor(max_workers=6) as ex:
-            results = ex.map(self._run_source, names)
-
-        for name, raws, err in results:
-            m = {"last_run": now.isoformat(), "found": 0, "new": 0, "error": err}
-            if err:
-                print(f"  {name}: FAILED {err}")
-                m["last_run"] = (meta.get(name) or {}).get("last_run")
-                meta[name] = {**(meta.get(name) or {}), "error": err}
-                continue
-            
-            for raw in raws:
-                posted = raw.get("posted_at")
-                if not posted: continue
-                age_h = (now - posted).total_seconds() / 3600
-                if age_h > max_h or age_h < -1: continue
-
-                title_lower = raw.get('title', '').lower()
-                if 'intern' not in title_lower and 'co-op' not in title_lower and 'student' not in title_lower: continue
+        
+        with ThreadPoolExecutor(max_workers=5) as executor:
+            futures = []
+            for name, func in sources.SOURCES.items():
+                if self.config.get("sources", {}).get(name, {}).get("enabled", True):
+                    futures.append(executor.submit(self.fetch_source, name, func))
+            for future in futures:
+                res = future.result()
+                if isinstance(res, list):
+                    raw_jobs.extend(res)
+                else:
+                    logging.error(f"Source adapter returned non-list: {type(res)}")
                 
-                m["found"] += 1
-                sc = scoring.score_job(raw, self.config)
-                
-                if self.config.get("remote_only") and not sc["remote"]: continue
-                if sc["score"] < self.config.get("min_score", 0): continue
-                
-                key = self._dedupe_key(raw["title"], raw["company"])
-                if key in jobs:
-                    if name != jobs[key]["source"] and name not in jobs[key]["other_sources"]:
-                        jobs[key]["other_sources"].append(name)
-                    continue
-                
-                # Auto-Categorization Feature
-                category = self.categorizer.categorize(raw["title"], raw.get("description", ""))
-
-                jobs[key] = {
-                    "id": key,
-                    "title": raw["title"], 
-                    "company": raw["company"],
-                    "location": raw["location"], 
-                    "remote": sc["remote"],
-                    "salary": raw.get("salary"), 
-                    "salary_min": raw.get("salary_min"),
-                    "url": raw.get("url") or "",
-                    "source": name, 
-                    "other_sources": [],
-                    "description": (raw.get("description") or "")[:600],
-                    "posted_at": posted.isoformat(),
-                    "first_seen": now.isoformat(),
-                    "score": sc["score"], 
-                    "category": category, # NEW FEATURE INJECTED
-                }
-                m["new"] += 1
-            total_new += m["new"]
-            meta[name] = m
-            print(f"  {name}: {m['found']} fresh internships, {m['new']} new additions.")
-
-        # Prune older jobs
-        kept = [j for j in jobs.values() if (now - datetime.fromisoformat(j["posted_at"])).total_seconds() / 3600 <= max_h]
-        kept.sort(key=lambda j: j["posted_at"], reverse=True)
-
-        out = {
-            "generated_at": now.isoformat(),
-            "config": {"max_age_hours": self.config.get("max_age_hours", 4)},
-            "source_meta": meta,
-            "jobs": kept,
+        logging.info(f"Fetched {len(raw_jobs)} raw records across all sources.")
+        
+        processed_jobs: Dict[str, JobRecord] = {}
+        rejected_jobs = []
+        metrics = {
+            "fetched": len(raw_jobs),
+            "normalized": 0,
+            "schema_rejected": 0,
+            "stale_rejected": 0,
+            "non_internship": 0,
+            "uncertain": 0,
+            "accepted": 0,
+            "deduplicated": 0
         }
-        self.out_file.parent.mkdir(parents=True, exist_ok=True)
-        self.out_file.write_text(json.dumps(out, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
-        print(f"Wrote {len(kept)} internship postings ({total_new} new) to dashboard data -> {self.out_file}")
-        return 0
+        
+        for raw in raw_jobs:
+            # 1. Normalize
+            if "description" not in raw:
+                raw["description"] = ""
+            if "employment_type" not in raw:
+                raw["employment_type"] = ""
+            metrics["normalized"] += 1
+                
+            # 2. Schema Validation
+            if not validate_job_schema(raw):
+                metrics["schema_rejected"] += 1
+                rejected_jobs.append({"reason": "schema", "job": raw})
+                continue
+                
+            # 2.5 Freshness Filtering
+            if not self.is_fresh(raw, now):
+                metrics["stale_rejected"] += 1
+                rejected_jobs.append({"reason": "stale", "job": raw})
+                continue
+                
+            # 3. Eligibility
+            eligibility = determine_eligibility(raw["title"], raw["description"], raw["employment_type"])
+            if eligibility == EligibilityStatus.NON_INTERNSHIP:
+                metrics["non_internship"] += 1
+                rejected_jobs.append({"reason": "non_internship", "job": raw})
+                continue
+            elif eligibility == EligibilityStatus.UNCERTAIN:
+                metrics["uncertain"] += 1
+                rejected_jobs.append({"reason": "uncertain", "job": raw})
+                continue
+                
+            # 4. Categorization
+            cats = self.categorizer.categorize(raw["title"], raw["description"])
+            
+            # 5. Scoring
+            score_data = scoring.score_job(raw, self.config)
+            
+            # 6. Deduplication
+            fp = self.fingerprint(raw)
+            if fp in processed_jobs:
+                metrics["deduplicated"] += 1
+                rejected_jobs.append({"reason": "duplicate", "job": raw})
+                continue
+                
+            record = JobRecord(
+                id=fp,
+                title=raw["title"],
+                company=raw["company"],
+                location=raw["location"],
+                remote=raw.get("remote", False) or score_data.get("remote", False),
+                employment_type=raw["employment_type"],
+                description=raw["description"],
+                url=raw["url"],
+                source=raw["source"],
+                posted_at=raw["posted_at"],
+                fetched_at=now,
+                categories=cats,
+                skills=[],
+                score=score_data["score"]
+            )
+            processed_jobs[fp] = record
+            metrics["accepted"] += 1
+            
+        logging.info(f"Metrics: {metrics}")
+        logging.info(f"Pipeline complete. Yielded {len(processed_jobs)} valid unique internships.")
+        
+        # Save output
+        out_data = {
+            "generated_at": now.isoformat(),
+            "config": {"max_age_hours": self.config.get("max_age_hours", 24)},
+            "source_meta": {},
+            "jobs": [j.to_dict() for j in processed_jobs.values()]
+        }
+        
+        # Dump rejected for analysis
+        (self.root / "rejected_analysis.json").write_text(
+            json.dumps([{**r, "job": {k: str(v) for k, v in r["job"].items()}} for r in rejected_jobs], indent=2), 
+            encoding="utf-8"
+        )
 
+        
+        self.out_file.parent.mkdir(parents=True, exist_ok=True)
+        self.out_file.write_text(json.dumps(out_data, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+        logging.info(f"Saved to {self.out_file}")
+        
 if __name__ == "__main__":
-    engine = JobScannerEngine(Path(__file__).resolve().parent)
-    sys.exit(engine.scan_and_aggregate())
+    pipeline = InternshipScannerPipeline(Path(__file__).resolve().parent)
+    pipeline.run()

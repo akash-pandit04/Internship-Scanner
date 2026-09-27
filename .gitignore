@@ -17,3 +17,6 @@ Thumbs.db
 
 # Logs and scratch
 *.log
+
+rejected_analysis.json
+scan_log.txt
