@@ -8,7 +8,10 @@ from pathlib import Path
 from typing import Dict, List, Any
 
 import scoring
-import sources
+from sources.registry import SourceRegistry
+
+# Make sure adapters are registered
+import sources.adapters.legacy
 from eligibility import determine_eligibility, EligibilityStatus
 from schema import validate_job_schema, JobRecord
 
@@ -185,10 +188,10 @@ class InternshipScannerPipeline:
         except Exception:
             return True # malformed handled safely
 
-    def fetch_source(self, name: str, fetch_func) -> List[Dict[str, Any]]:
+    def fetch_source(self, name: str, adapter) -> List[Dict[str, Any]]:
         logging.info(f"Fetching from {name}...")
         try:
-            raws = fetch_func(self.config)
+            raws = adapter.fetch()
             for r in raws:
                 r["source"] = name
             return raws
@@ -203,11 +206,12 @@ class InternshipScannerPipeline:
         raw_jobs = []
         now = datetime.now(timezone.utc)
         
+        adapters = SourceRegistry.get_sources(self.config)
+        
         with ThreadPoolExecutor(max_workers=5) as executor:
             futures = []
-            for name, func in sources.SOURCES.items():
-                if self.config.get("sources", {}).get(name, {}).get("enabled", True):
-                    futures.append(executor.submit(self.fetch_source, name, func))
+            for name, adapter in adapters.items():
+                futures.append(executor.submit(self.fetch_source, name, adapter))
             for future in futures:
                 res = future.result()
                 if isinstance(res, list):

@@ -1,25 +1,31 @@
 def test_failure_isolation_comprehensive(monkeypatch, tmp_path):
-    import sources
+    from sources.registry import SourceRegistry
+    from sources.base import BaseSource
     from scan import InternshipScannerPipeline
     import json
     
-    def fetch_404(cfg): raise Exception("404 Not Found")
-    def fetch_429(cfg): raise Exception("429 Too Many Requests")
-    def fetch_500(cfg): raise Exception("500 Internal Server Error")
-    def fetch_timeout(cfg): raise Exception("Timeout")
-    def fetch_malformed(cfg): return "This is not a list"
-    
-    def fetch_success(cfg):
-        from datetime import datetime, timezone
-        return [{"title": "A Intern", "company": "B Corp", "location": "Remote", "remote": True, "url": "https://b.com/j", "posted_at": datetime.now(timezone.utc)}]
-    
-    monkeypatch.setattr(sources, "SOURCES", {
-        "s404": fetch_404,
-        "s429": fetch_429,
-        "s500": fetch_500,
-        "stout": fetch_timeout,
-        "smal": fetch_malformed,
-        "good": fetch_success
+    class Mock404(BaseSource):
+        def fetch(self): raise Exception("404 Not Found")
+    class Mock429(BaseSource):
+        def fetch(self): raise Exception("429 Too Many Requests")
+    class Mock500(BaseSource):
+        def fetch(self): raise Exception("500 Internal Server Error")
+    class MockTimeout(BaseSource):
+        def fetch(self): raise Exception("Timeout")
+    class MockMalformed(BaseSource):
+        def fetch(self): return "This is not a list"
+    class MockSuccess(BaseSource):
+        def fetch(self):
+            from datetime import datetime, timezone
+            return [{"title": "A Intern", "company": "B Corp", "location": "Remote", "remote": True, "url": "https://b.com/j", "posted_at": datetime.now(timezone.utc)}]
+
+    monkeypatch.setattr(SourceRegistry, "get_sources", lambda cfg: {
+        "s404": Mock404(cfg),
+        "s429": Mock429(cfg),
+        "s500": Mock500(cfg),
+        "stout": MockTimeout(cfg),
+        "smal": MockMalformed(cfg),
+        "good": MockSuccess(cfg)
     })
     (tmp_path / "job_titles.txt").write_text("A Intern")
     

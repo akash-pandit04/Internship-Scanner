@@ -6,15 +6,18 @@ from pathlib import Path
 from schema import validate_job_schema, JobRecord
 from eligibility import determine_eligibility, EligibilityStatus
 from scan import InternshipScannerPipeline
-import sources
+from sources.registry import SourceRegistry
+from sources.base import BaseSource
 
 def test_source_failure_isolation(monkeypatch, tmp_path):
-    def fetch_source_A(cfg):
-        raise Exception("HTTP 500")
-    def fetch_source_B(cfg):
-        return [{"title": "Software Intern", "company": "B Corp", "location": "Remote", "remote": True, "url": "https://b.com", "posted_at": datetime.now(timezone.utc)}]
+    class MockA(BaseSource):
+        def fetch(self):
+            raise Exception("HTTP 500")
+    class MockB(BaseSource):
+        def fetch(self):
+            return [{"title": "Software Intern", "company": "B Corp", "location": "Remote", "remote": True, "url": "https://b.com", "posted_at": datetime.now(timezone.utc)}]
     
-    monkeypatch.setattr(sources, "SOURCES", {"A": fetch_source_A, "B": fetch_source_B})
+    monkeypatch.setattr(SourceRegistry, "get_sources", lambda cfg: {"A": MockA(cfg), "B": MockB(cfg)})
     (tmp_path / "job_titles.txt").write_text("Software Intern")
     
     pipeline = InternshipScannerPipeline(tmp_path)

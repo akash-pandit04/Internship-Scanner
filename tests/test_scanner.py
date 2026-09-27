@@ -6,7 +6,6 @@ from pathlib import Path
 from schema import validate_job_schema, JobRecord
 from eligibility import determine_eligibility, EligibilityStatus
 from scan import InternshipScannerPipeline
-import sources
 
 def test_schema_valid_record():
     valid = {
@@ -73,36 +72,37 @@ def test_deduplication():
     assert fp1 != fp3
 
 def test_pipeline_integration(monkeypatch, tmp_path):
-    # Mock sources
-    def mock_fetch(cfg):
-        return [
-            {
-                "title": "Software Intern",
-                "company": "Valid Corp",
-                "location": "Remote",
-                "remote": True,
-                "url": "https://valid.com",
-                "posted_at": datetime.now(timezone.utc)
-            },
-            {
-                "title": "Senior Engineer", # Should be rejected by eligibility
-                "company": "Invalid Corp",
-                "location": "Remote",
-                "remote": True,
-                "url": "https://invalid.com",
-                "posted_at": datetime.now(timezone.utc)
-            },
-            {
-                # Missing URL, should be rejected by schema
-                "title": "Data Intern",
-                "company": "Missing URL Corp",
-                "location": "Remote",
-                "remote": True,
-                "posted_at": datetime.now(timezone.utc)
-            }
-        ]
-    
-    monkeypatch.setattr(sources, "SOURCES", {"mock": mock_fetch})
+    from sources.registry import SourceRegistry
+    from sources.base import BaseSource
+    class MockAdapter(BaseSource):
+        def fetch(self):
+            return [
+                {
+                    "title": "Software Intern",
+                    "company": "Valid Corp",
+                    "location": "Remote",
+                    "remote": True,
+                    "url": "https://valid.com",
+                    "posted_at": datetime.now(timezone.utc)
+                },
+                {
+                    "title": "Senior Engineer", # Should be rejected by eligibility
+                    "company": "Invalid Corp",
+                    "location": "Remote",
+                    "remote": True,
+                    "url": "https://invalid.com",
+                    "posted_at": datetime.now(timezone.utc)
+                },
+                {
+                    # Missing URL, should be rejected by schema
+                    "title": "Data Intern",
+                    "company": "Missing URL Corp",
+                    "location": "Remote",
+                    "remote": True,
+                    "posted_at": datetime.now(timezone.utc)
+                }
+            ]
+    monkeypatch.setattr(SourceRegistry, "get_sources", lambda cfg: {"mock": MockAdapter(cfg)})
     
     (tmp_path / "job_titles.txt").write_text("Software Intern")
     
