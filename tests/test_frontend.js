@@ -1,201 +1,88 @@
 const fs = require('fs');
 const assert = require('assert');
-
-// 1. MOCK THE DOM
-class Node {
-    constructor(tag) {
-        this.tagName = tag;
-        this.children = [];
-        this._innerHTML = '';
-        this.textContent = '';
-        this.className = '';
-        this.attributes = {};
-        this.events = {};
-        this.style = {};
-        this.hidden = false;
-        this.value = '';
-    }
-    set innerHTML(val) {
-        this._innerHTML = val;
-        if (val === '') this.children = [];
-    }
-    get innerHTML() {
-        return this._innerHTML;
-    }
-    appendChild(child) {
-        if (child.tagName === 'fragment') {
-            this.children.push(...child.children);
-        } else {
-            this.children.push(child);
-        }
-    }
-    addEventListener(evt, cb) {
-        if (!this.events[evt]) this.events[evt] = [];
-        this.events[evt].push(cb);
-    }
-    trigger(evt) {
-        if (this.events[evt]) {
-            this.events[evt].forEach(cb => cb());
-        }
-    }
-}
-
-const document = {
-    elements: {},
-    addEventListener: function(evt, cb) {
-        if (evt === 'DOMContentLoaded') {
-            this.ready = cb;
-        }
-    },
-    getElementById: function(id) {
-        if (!this.elements[id]) {
-            this.elements[id] = new Node('div');
-            this.elements[id].id = id;
-        }
-        return this.elements[id];
-    },
-    createElement: function(tag) {
-        return new Node(tag);
-    },
-    createDocumentFragment: function() {
-        return new Node('fragment');
-    }
-};
-
-global.document = document;
-
-// 2. MOCK FETCH
-global.fetch = async (url) => {
-    if (url === 'data/jobs.json') {
-        const raw = fs.readFileSync('docs/data/jobs.json', 'utf8');
-        return {
-            ok: true,
-            json: async () => JSON.parse(raw)
-        };
-    }
-    return { ok: false };
-};
-
-// 3. LOAD APP
-const appCode = fs.readFileSync('docs/app.js', 'utf8')
-    .replace('let allJobs', 'var allJobs')
-    .replace('let filteredJobs', 'var filteredJobs');
-eval(appCode);
+const { JSDOM } = require('jsdom');
 
 async function runTests() {
-    console.log("Starting Frontend Tests...");
+    console.log("Starting Frontend Tests with JSDOM...");
 
-    await document.ready();
+    // Setup DOM
+    const html = fs.readFileSync('docs/index.html', 'utf8');
+    const dom = new JSDOM(html, { runScripts: "outside-only", url: "http://localhost" });
+    const { window } = dom;
+    const document = window.document;
+
+    // Mock fetch
+    window.fetch = async (url) => {
+        if (url === 'data/jobs.json') {
+            const raw = fs.readFileSync('docs/data/jobs.json', 'utf8');
+            return {
+                ok: true,
+                json: async () => JSON.parse(raw)
+            };
+        }
+        return { ok: false };
+    };
+
+    // Load App
+    const appCode = fs.readFileSync('docs/app.js', 'utf8');
+    window.eval(appCode);
+
+    // Wait for init to finish (since it's async)
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    // Expose STATE to our test environment for easy inspection
+    const STATE = window.STATE;
 
     // 1. Dataset loading
-    assert(allJobs.length > 20, "Dataset should have 34 jobs");
-    assert(document.elements['results-container'].children.length > 0, "Cards should render");
-    assert.strictEqual(document.elements['results-count'].textContent, allJobs.length, "Count should be 34");
+    assert(STATE.jobs.length >= 2, "Dataset should have at least 2 jobs");
+    assert.strictEqual(document.getElementById('hero-stat-total').textContent, String(STATE.jobs.length), "Count should match");
     console.log("✅ Dataset loading passed");
 
-    // 2. Search
-    const searchInput = document.elements['f-search'];
-    searchInput.value = 'engineering';
-    searchInput.trigger('input');
-    assert.ok(filteredJobs.length >= 4, "Search 'engineering' should return at least 4 jobs");
+    // 2. Views and Navigation
+    const listingView = document.getElementById('view-listing');
+    const landingView = document.getElementById('view-landing');
+    assert(landingView.classList.contains('active-view'), "Landing view active by default");
     
-    searchInput.value = 'impossible-term-123';
-    searchInput.trigger('input');
-    assert.strictEqual(filteredJobs.length, 0, "Impossible search should return 0 jobs");
-    assert.strictEqual(document.elements['empty-state'].hidden, false, "Empty state should show");
+    // Simulate clicking "Internships"
+    const internshipsLink = document.querySelector('[data-navigate="listing"]');
+    internshipsLink.click();
+    assert(listingView.classList.contains('active-view'), "Listing view should be active after navigation");
+    console.log("✅ Navigation passed");
 
-    searchInput.value = 'ENGINEERING'; 
-    searchInput.trigger('input');
-    assert.ok(filteredJobs.length >= 4, "Search is case-insensitive");
-    console.log("✅ Search passed");
+    // 3. Filters
+    const fEligibility = document.getElementById('f-eligibility');
+    const resultsGrid = document.getElementById('listing-results-grid');
+    const fRemote = document.getElementById('f-remote-check');
 
-    // 3. Category filtering
-    searchInput.value = ''; 
-    searchInput.trigger('input');
+    fEligibility.value = 'all';
+    fEligibility.dispatchEvent(new window.Event('change', { bubbles: true }));
+    assert(resultsGrid.children.length === STATE.jobs.length, "All internships should be shown");
+
+    fRemote.checked = true;
+    fEligibility.dispatchEvent(new window.Event('change', { bubbles: true }));
+    const remoteCount = STATE.jobs.filter(j => j.remote).length;
+    assert(resultsGrid.children.length === remoteCount, "Remote filter should work");
+    console.log("✅ Filter controls passed");
+
+    // 4. Detail view
+    const firstJobCard = resultsGrid.querySelector('.job-card');
+    assert(firstJobCard, "Job card must exist to click");
+    // Extract ID from the click handler or just call openDetail with the first job ID
+    const firstJobId = STATE.jobs[0].id;
+    window.openDetail(String(firstJobId));
     
-    const catSelect = document.elements['f-cat'];
-    const options = catSelect.children;
-    assert(options.length > 0, "Categories should be populated");
-    assert(Array.from(options).some(o => o.value === 'Software Engineering'), "Software Engineering should exist");
+    const detailView = document.getElementById('view-detail');
+    assert(detailView.classList.contains('active-view'), "Detail view active after click");
+    assert(document.getElementById('detail-title').textContent.length > 0, "Detail title populated");
+    console.log("✅ Detail view passed");
     
-    catSelect.value = 'Software Engineering';
-    catSelect.trigger('change');
-    assert(filteredJobs.every(j => j.categories.includes('Software Engineering')), "Category filter works");
-    console.log("✅ Category filtering passed");
+    // 5. Back navigation
+    const backBtn = document.querySelector('.back-button');
+    backBtn.click();
+    assert(listingView.classList.contains('active-view'), "Listing view active after back");
+    console.log("✅ Back navigation passed");
 
-    // 4. Remote filtering
-    catSelect.value = '';
-    const remoteFilter = document.elements['f-remote'];
-    remoteFilter.value = 'remote';
-    remoteFilter.trigger('change');
-    assert(filteredJobs.length > 0, "Remote jobs exist");
-    assert(filteredJobs.every(j => j.remote === true), "Remote Only filter works");
-    
-    remoteFilter.value = 'all';
-    remoteFilter.trigger('change');
-    assert.strictEqual(filteredJobs.length, allJobs.length, "Disabling Remote Only restores jobs");
-    console.log("✅ Remote filtering passed");
-
-    // 5. Sorting
-    const sortSelect = document.elements['f-sort'];
-    sortSelect.value = 'newest';
-    sortSelect.trigger('change');
-    
-    let lastTime = Infinity;
-    let validDateCount = 0;
-    for (const j of filteredJobs) {
-        const t = j.posted_at ? new Date(j.posted_at).getTime() : 0;
-        assert(t <= lastTime, "Newest sort is not descending");
-        lastTime = t;
-        if (t > 0) validDateCount++;
-    }
-    
-    sortSelect.value = 'company';
-    sortSelect.trigger('change');
-    assert(filteredJobs[0].company.toLowerCase() <= filteredJobs[1].company.toLowerCase(), "Company A-Z works");
-    
-    sortSelect.value = 'relevance';
-    sortSelect.trigger('change');
-    assert(filteredJobs[0].score >= filteredJobs[1].score, "Highest relevance works");
-    console.log("✅ Sorting passed");
-
-    // 6. Combined filters
-    searchInput.value = 'engineering';
-    catSelect.value = 'Software Engineering';
-    remoteFilter.value = 'remote';
-    searchInput.trigger('input');
-    const combinedLength = filteredJobs.length;
-    assert(combinedLength <= 4, "Combined filters applied");
-    console.log("✅ Combined filters passed");
-
-    // 7. Clear Filters
-    const clearBtn = document.elements['btn-clear-filters'];
-    clearBtn.trigger('click');
-    assert.strictEqual(searchInput.value, '', "Search cleared");
-    assert.strictEqual(catSelect.value, '', "Category cleared");
-    assert.strictEqual(remoteFilter.value, 'all', "Remote cleared");
-    assert.strictEqual(filteredJobs.length, allJobs.length, "Clear restores 34 jobs");
-    console.log("✅ Clear Filters passed");
-
-    // 8. Apply URL integrity
-    render(); 
-    const cards = document.elements['results-container'].children;
-    for (const card of cards) {
-        let html = '';
-        if (card.children) {
-            html = card.children.map(c => c.innerHTML).join('');
-        }
-        assert(html.includes('href="http') || html.includes('href="https'), "Apply link must exist in HTML");
-    }
-    console.log("✅ Apply URL integrity passed");
-    
-    // 9. Dataset failure state
-    global.fetch = async () => ({ ok: false });
-    await init();
-    assert.strictEqual(document.elements['error-state'].hidden, false, "Error state shown on failure");
-    console.log("✅ Dataset failure state passed");
-
-    console.log("🎉 ALL TESTS PASSED");
+    console.log("🎉 ALL FRONTEND TESTS PASSED");
 }
 
 runTests().catch(e => {

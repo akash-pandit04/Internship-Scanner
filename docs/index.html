@@ -1,135 +1,293 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#2563eb">
-<meta name="description" content="Find verified Computer Science and Engineering internships.">
-<title>Internship Scanner</title>
-<link rel="stylesheet" href="style.css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#1a202c">
+    <meta name="description" content="Find fresh, relevant internships from multiple verified sources.">
+    <title>Internship Scanner</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts for typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
 
-<header class="app-header">
-  <div class="container header-container">
-    <div class="brand-group">
-      <div class="brand">Internship Scanner</div>
-      <div class="brand-tagline">Curated, fresh CSE internships from verified tech employers.</div>
-    </div>
-    <div class="meta-info">
-      <span id="update-status" aria-live="polite">Loading dataset...</span>
-    </div>
-  </div>
-</header>
-
-<main>
-  
-  <section class="dashboard container" aria-label="Dataset Overview">
-    <div class="stat-card">
-      <h3 class="stat-title">Total Internships</h3>
-      <div id="stat-total" class="stat-value">--</div>
-      <div class="stat-desc">across all categories</div>
-    </div>
-    <div class="stat-card highlight">
-      <h3 class="stat-title">CSE Qualified</h3>
-      <div id="stat-cse" class="stat-value">--</div>
-      <div class="stat-desc">matching technical taxonomy</div>
-    </div>
-    <div class="stat-card">
-      <h3 class="stat-title">Employers</h3>
-      <div id="stat-companies" class="stat-value">--</div>
-      <div class="stat-desc">actively hiring now</div>
-    </div>
-    <div class="stat-card">
-      <h3 class="stat-title">Freshness</h3>
-      <div id="stat-freshness" class="stat-value">24h</div>
-      <div class="stat-desc">maximum posting age</div>
-    </div>
-  </section>
-
-  <section class="search-section" aria-labelledby="search-heading">
-    <div class="container">
-      <h2 id="search-heading" class="sr-only">Search</h2>
-      <div class="search-bar">
-        <label for="f-search" class="sr-only">Search internships</label>
-        <div class="search-input-wrapper">
-          <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-          <input id="f-search" type="search" placeholder="Search title, company, skills, or location...">
+<!-- Navigation -->
+<nav class="main-nav" aria-label="Main Navigation">
+    <div class="nav-container">
+        <a href="#" class="nav-brand" data-navigate="landing">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="brand-icon"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+            Internship Scanner
+        </a>
+        
+        <button class="mobile-menu-btn" aria-label="Toggle menu" aria-expanded="false">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </button>
+        
+        <div class="nav-links">
+            <a href="#" class="nav-link" data-navigate="listing" data-filter="all">Internships</a>
+            <a href="#categories" class="nav-link" data-navigate="landing">Categories</a>
+            <a href="#companies" class="nav-link" data-navigate="landing">Companies</a>
+            <a href="#" class="nav-link" data-navigate="listing" data-filter="remote">Remote</a>
+            <a href="#about" class="nav-link" data-navigate="landing">About</a>
         </div>
-      </div>
     </div>
-  </section>
+</nav>
 
-  <section class="controls container" aria-label="Filters">
-    <div class="filters">
-      <div class="filter-group">
-        <label for="f-cse-only">View Mode</label>
-        <select id="f-cse-only">
-          <option value="cse" selected>CSE Qualified Only</option>
-          <option value="all">All Internships</option>
-        </select>
-      </div>
+<main id="app-root">
+    
+    <!-- VIEW: LANDING PAGE -->
+    <div id="view-landing" class="view active-view">
+        
+        <section class="hero-section">
+            <div class="hero-content">
+                <h1 class="hero-title">Find internships that match your skills.</h1>
+                <p class="hero-subtitle">Aggregating fresh, relevant opportunities from multiple employer sources across the web.</p>
+                
+                <div class="hero-search-box">
+                    <form id="landing-search-form" class="search-form">
+                        <div class="search-input-group">
+                            <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                            <input type="search" id="landing-search-input" placeholder="Search by title, skills, company or location..." aria-label="Search internships">
+                        </div>
+                        <button type="submit" class="btn btn-primary search-btn">Search</button>
+                    </form>
+                </div>
+                
+                <div class="hero-stats">
+                    <span id="hero-stat-total">...</span> active internships • Updated <span id="hero-stat-freshness">...</span>
+                </div>
+            </div>
+        </section>
 
-      <div class="filter-group">
-        <label for="f-cat">CSE Category</label>
-        <select id="f-cat">
-          <option value="">All Categories</option>
-        </select>
-      </div>
-      
-      <div class="filter-group">
-        <label for="f-company">Company</label>
-        <select id="f-company">
-          <option value="">All Companies</option>
-        </select>
-      </div>
-      
-      <div class="filter-group">
-        <label for="f-remote">Location</label>
-        <select id="f-remote">
-          <option value="all">Any Location</option>
-          <option value="remote">Remote Only</option>
-        </select>
-      </div>
-      
-      <div class="filter-group">
-        <label for="f-sort">Sort By</label>
-        <select id="f-sort">
-          <option value="newest" selected>Newest First</option>
-          <option value="relevance">Highest Relevance</option>
-          <option value="company">Company A-Z</option>
-        </select>
-      </div>
-      
-      <div class="filter-actions">
-        <button id="btn-clear-filters" class="btn-secondary" aria-label="Clear all filters">Clear Filters</button>
-      </div>
+        <section id="categories" class="discovery-section">
+            <div class="section-container">
+                <div class="section-header">
+                    <h2>Explore Categories</h2>
+                    <a href="#" class="view-all-link" data-navigate="listing">View all internships &rarr;</a>
+                </div>
+                <div class="categories-grid" id="landing-categories">
+                    <!-- Dynamic categories injected here -->
+                </div>
+            </div>
+        </section>
+
+        <section class="discovery-section bg-light">
+            <div class="section-container">
+                <div class="section-header">
+                    <h2>Fresh Internships</h2>
+                    <a href="#" class="view-all-link" data-navigate="listing" data-sort="newest">View newest &rarr;</a>
+                </div>
+                <div class="cards-grid" id="landing-fresh-internships">
+                    <!-- Dynamic fresh cards injected here -->
+                </div>
+            </div>
+        </section>
+
+        <section id="companies" class="discovery-section">
+            <div class="section-container">
+                <div class="section-header">
+                    <h2>Top Hiring Employers</h2>
+                </div>
+                <div class="companies-grid" id="landing-companies">
+                    <!-- Dynamic companies injected here -->
+                </div>
+            </div>
+        </section>
+
+        <section id="about" class="discovery-section bg-light">
+            <div class="section-container about-content">
+                <h2>Trust & Provenance</h2>
+                <p>Listings are collected directly from public employer sources and filtered for 24-hour freshness and genuine internship eligibility. We do not modify the original employer descriptions or requirements.</p>
+                <div class="provenance-badges">
+                    <span class="badge badge-outline">Multi-source Integration</span>
+                    <span class="badge badge-outline">24h Maximum Age</span>
+                    <span class="badge badge-outline">Deterministic Deduplication</span>
+                </div>
+            </div>
+        </section>
     </div>
-  </section>
-  
-  <section class="results container" aria-label="Internship listings">
-    <div class="results-header">
-      <h2 class="results-title">Available Internships</h2>
-      <span id="results-count" class="badge" aria-live="polite">0</span>
+
+    <!-- VIEW: LISTING / SEARCH PAGE -->
+    <div id="view-listing" class="view">
+        <div class="listing-container">
+            
+            <aside class="listing-sidebar">
+                <div class="sidebar-header">
+                    <h2>Filters</h2>
+                    <button id="mobile-filter-close" class="btn-icon mobile-only" aria-label="Close filters">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                </div>
+                <div class="filters-scroll">
+                    <form id="filters-form">
+                        
+                        <div class="filter-group">
+                            <label for="f-eligibility" class="filter-label">Eligibility Mode</label>
+                            <select id="f-eligibility" class="filter-select">
+                                <option value="cse" selected>CSE Internships</option>
+                                <option value="all">All Eligible Internships</option>
+                            </select>
+                            <small class="filter-hint">CSE internships match our technical taxonomy.</small>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label for="f-category" class="filter-label">CSE Category</label>
+                            <select id="f-category" class="filter-select">
+                                <option value="">All Categories</option>
+                                <!-- Dynamic options -->
+                            </select>
+                        </div>
+
+                        <div class="filter-group">
+                            <label for="f-company" class="filter-label">Company</label>
+                            <select id="f-company" class="filter-select">
+                                <option value="">All Companies</option>
+                                <!-- Dynamic options -->
+                            </select>
+                        </div>
+
+                        <div class="filter-group">
+                            <label class="filter-label">Location Type</label>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="f-remote-check" value="remote">
+                                <label for="f-remote-check">Remote Internships</label>
+                            </div>
+                        </div>
+
+                        <div class="filter-group">
+                            <label for="f-source" class="filter-label">Source System</label>
+                            <select id="f-source" class="filter-select">
+                                <option value="">All Sources</option>
+                                <!-- Dynamic options -->
+                            </select>
+                        </div>
+                        
+                        <div class="filter-actions">
+                            <button type="button" id="btn-reset-filters" class="btn btn-outline full-width">Clear Filters</button>
+                        </div>
+                    </form>
+                </div>
+            </aside>
+
+            <section class="listing-main">
+                <div class="listing-topbar">
+                    <div class="listing-search-wrapper">
+                        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        <input type="search" id="listing-search-input" placeholder="Search internships...">
+                    </div>
+                    
+                    <button id="mobile-filter-toggle" class="btn btn-outline mobile-only">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+                        Filters
+                    </button>
+
+                    <div class="sort-wrapper">
+                        <label for="f-sort" class="sr-only">Sort by</label>
+                        <select id="f-sort" class="filter-select sort-select">
+                            <option value="newest">Newest First</option>
+                            <option value="company">Company A-Z</option>
+                            <option value="relevance">Relevance</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="listing-results-header">
+                    <h2 id="results-count-text">... internships found</h2>
+                </div>
+
+                <div id="listing-results-grid" class="cards-grid list-layout">
+                    <!-- Cards injected here -->
+                </div>
+
+                <div id="listing-empty-state" class="empty-state" hidden>
+                    <div class="empty-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    </div>
+                    <h3>No internships match your filters.</h3>
+                    <p>Try adjusting your search criteria or clearing filters.</p>
+                    <button id="btn-empty-clear-listing" class="btn btn-primary">Clear Filters</button>
+                </div>
+            </section>
+            
+        </div>
     </div>
 
-    <div id="results-container" class="cards-grid">
-      <!-- Cards will be injected here -->
+    <!-- VIEW: DETAIL PAGE -->
+    <div id="view-detail" class="view">
+        <div class="detail-container">
+            <button class="back-button" data-navigate="listing">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                Back to search
+            </button>
+            
+            <div class="detail-layout">
+                <div class="detail-main">
+                    <div class="detail-header-content">
+                        <h1 id="detail-title" class="detail-title">...</h1>
+                        <div class="detail-meta-row">
+                            <span id="detail-company" class="detail-company">...</span>
+                            <span class="meta-dot">•</span>
+                            <span id="detail-location" class="detail-location">...</span>
+                            <span id="detail-remote-badge" class="badge badge-green" hidden>Remote</span>
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h2>About this Internship</h2>
+                        <div id="detail-description" class="detail-description-content">
+                            <!-- Injected HTML/Text -->
+                        </div>
+                    </div>
+                    
+                    <div class="detail-section" id="detail-skills-section">
+                        <h2>Skills & Categories</h2>
+                        <div id="detail-skills" class="tags-row"></div>
+                    </div>
+                </div>
+
+                <div class="detail-sidebar">
+                    <div class="apply-card">
+                        <a href="#" id="detail-apply-btn" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-large full-width">
+                            Apply Now
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                        </a>
+                        <div class="apply-meta">
+                            <div class="apply-meta-item">
+                                <span class="meta-label">Updated</span>
+                                <span id="detail-freshness" class="meta-value">...</span>
+                            </div>
+                            <div class="apply-meta-item">
+                                <span class="meta-label">Source</span>
+                                <span id="detail-source" class="meta-value source-badge">...</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="related-section">
+                        <h3>Related Internships</h3>
+                        <div id="detail-related-grid" class="related-grid">
+                            <!-- Cards injected here -->
+                        </div>
+                        <div id="detail-related-empty" hidden>
+                            <p class="text-muted">No related internships found.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     
-    <div id="empty-state" class="empty-state" hidden>
-      <h2>No internships match your filters.</h2>
-      <p>Try adjusting your search criteria or clearing filters.</p>
-      <button id="btn-empty-clear" class="btn-primary">Clear Filters</button>
-    </div>
-    
-    <div id="error-state" class="error-state" hidden>
-      <h2>Unable to load internship dataset.</h2>
-      <p>The dataset might be unavailable or generating. Please try again later.</p>
-    </div>
-  </section>
-  
 </main>
+
+<footer class="site-footer">
+    <div class="container footer-content">
+        <div class="footer-brand">Internship Scanner</div>
+        <div class="footer-copy">Built for CSE students. Multi-source transparency.</div>
+    </div>
+</footer>
 
 <script src="app.js"></script>
 </body>
