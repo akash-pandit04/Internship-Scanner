@@ -59,7 +59,7 @@ button, input, select { font-family: inherit; }
 .mobile-menu-btn { display: none; background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-main); }
 
 /* Landing Hero */
-.hero-section { background: #082F6A; padding: 48px 16px 80px; position: relative; color: white; border-radius: 0 0 24px 24px; margin-bottom: 80px; }
+.hero-section { background: #082F6A; padding: 48px 16px 140px; position: relative; color: white; border-radius: 0 0 24px 24px; margin-bottom: 80px; }
 .hero-content-wrapper { max-width: var(--max-width); margin: 0 auto; display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2; }
 .hero-text { max-width: 600px; }
 .hero-title { font-size: 3rem; font-weight: 800; line-height: 1.1; margin: 0 0 16px; letter-spacing: -1px; }
