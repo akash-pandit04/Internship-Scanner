@@ -1,5 +1,5 @@
 /**
- * Internship Scanner v1.3.0 Frontend Application
+ * Internship Scanner v1.3.1 - Exact UI Match
  */
 
 window.STATE = {
@@ -9,71 +9,86 @@ window.STATE = {
     sources: new Set(),
     currentView: 'landing',
     filters: {
-        mode: 'cse', // 'cse' or 'all'
+        mode: 'cse',
         search: '',
         category: '',
         company: '',
-        remote: false,
+        location: '',
+        remote: '',
         source: '',
         sort: 'newest'
     },
     selectedJobId: null
 };
 
-// Elements
 const els = {
     views: document.querySelectorAll('.view'),
-    navLinks: document.querySelectorAll('.nav-link, .nav-brand, .view-all-link, .back-button'),
+    navLinks: document.querySelectorAll('.nav-link, .nav-brand, .view-all-link, [data-navigate]'),
     
     // Landing
-    landingSearchForm: document.getElementById('landing-search-form'),
-    landingSearchInput: document.getElementById('landing-search-input'),
-    heroTotal: document.getElementById('hero-stat-total'),
-    heroFreshness: document.getElementById('hero-stat-freshness'),
+    heroSearchForm: document.getElementById('landing-search-form'),
+    heroSearchInput: document.getElementById('landing-search-input'),
+    statTotal: document.getElementById('stat-total'),
+    statCse: document.getElementById('stat-cse'),
+    statEmployers: document.getElementById('stat-employers'),
+    statSources: document.getElementById('stat-sources'),
     landingCategories: document.getElementById('landing-categories'),
     landingFresh: document.getElementById('landing-fresh-internships'),
-    landingCompanies: document.getElementById('landing-companies'),
     
-    // Listing
-    filterForm: document.getElementById('filters-form'),
-    fEligibility: document.getElementById('f-eligibility'),
+    // Listing Sidebar
+    fModeRadios: document.getElementsByName('f_mode'),
+    countCse: document.getElementById('count-cse-only'),
+    countAll: document.getElementById('count-all'),
+    sidebarSearch: document.getElementById('listing-sidebar-search'),
     fCategory: document.getElementById('f-category'),
     fCompany: document.getElementById('f-company'),
-    fRemote: document.getElementById('f-remote-check'),
+    fLocation: document.getElementById('f-location'),
+    fRemote: document.getElementById('f-remote'),
     fSource: document.getElementById('f-source'),
-    fSort: document.getElementById('f-sort'),
-    listingSearchInput: document.getElementById('listing-search-input'),
-    btnResetFilters: document.getElementById('btn-reset-filters'),
-    btnEmptyClear: document.getElementById('btn-empty-clear-listing'),
+    fSortSidebar: document.getElementById('f-sort-sidebar'),
+    btnClearFilters: document.getElementById('btn-clear-filters'),
+    
+    // Listing Main
+    resultsCountTitle: document.getElementById('results-count-title'),
+    resultsCountSubtitle: document.getElementById('results-count-subtitle'),
+    fSortTop: document.getElementById('f-sort-top'),
     resultsGrid: document.getElementById('listing-results-grid'),
-    resultsCountText: document.getElementById('results-count-text'),
     emptyState: document.getElementById('listing-empty-state'),
     
-    // Mobile
-    mobileMenuBtn: document.querySelector('.mobile-menu-btn'),
-    navLinksContainer: document.querySelector('.nav-links'),
-    mobileFilterToggle: document.getElementById('mobile-filter-toggle'),
-    mobileFilterClose: document.getElementById('mobile-filter-close'),
-    listingSidebar: document.querySelector('.listing-sidebar'),
-
     // Detail
+    breadcrumbTitle: document.getElementById('breadcrumb-title'),
+    detailLogo: document.getElementById('detail-logo'),
     detailTitle: document.getElementById('detail-title'),
-    detailCompany: document.getElementById('detail-company'),
-    detailLocation: document.getElementById('detail-location'),
-    detailRemoteBadge: document.getElementById('detail-remote-badge'),
-    detailDescription: document.getElementById('detail-description'),
-    detailSkills: document.getElementById('detail-skills'),
-    detailSkillsSection: document.getElementById('detail-skills-section'),
+    detailCompany: document.getElementById('detail-company-name'),
+    detailLocText: document.getElementById('detail-location-text'),
+    detailRemText: document.getElementById('detail-remote-text'),
+    detailCatBadge: document.getElementById('detail-cat-badge'),
+    detailUpdated: document.getElementById('detail-updated'),
+    detailSource: document.getElementById('detail-source-text'),
+    detailJobId: document.getElementById('detail-job-id'),
     detailApplyBtn: document.getElementById('detail-apply-btn'),
-    detailFreshness: document.getElementById('detail-freshness'),
-    detailSource: document.getElementById('detail-source'),
-    detailRelatedGrid: document.getElementById('detail-related-grid'),
-    detailRelatedEmpty: document.getElementById('detail-related-empty')
+    detailDesc: document.getElementById('detail-desc-content'),
+    detailSkills: document.getElementById('detail-skills-tags'),
+    
+    sideCompany: document.getElementById('side-company'),
+    sideLocation: document.getElementById('side-location'),
+    sideRemote: document.getElementById('side-remote'),
+    sideCategory: document.getElementById('side-category'),
+    sideSource: document.getElementById('side-source'),
+    sideUpdated: document.getElementById('side-updated'),
+    sideId: document.getElementById('side-id')
 };
 
-/**
- * Initialization
- */
+function getLogoUrl(companyName) {
+    const clean = companyName.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const fallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(companyName)}&background=random&color=fff&size=64`;
+    // We try clearbit first, if it fails, onerror in HTML will use fallback, but let's just construct it
+    return `https://logo.clearbit.com/${clean}.com`;
+}
+function getFallback(companyName) {
+    return `https://ui-avatars.com/api/?name=${encodeURIComponent(companyName)}&background=random&color=fff&size=64`;
+}
+
 async function init() {
     setupEventListeners();
     await loadData();
@@ -82,420 +97,301 @@ async function init() {
 async function loadData() {
     try {
         const response = await fetch('data/jobs.json');
-        if (!response.ok) throw new Error('Network response was not ok');
+        if (!response.ok) throw new Error('Failed to fetch');
         const data = await response.json();
-        
-        // Handle if dict { jobs: [] } or just []
-        let jobsArray = Array.isArray(data) ? data : (data.jobs || []);
-        
-        window.STATE.jobs = jobsArray;
+        STATE.jobs = Array.isArray(data) ? data : (data.jobs || []);
         processMetadata();
-        
-        // Initial renders
         populateFilterDropdowns();
         renderLanding();
         applyFiltersAndRender();
-        
-    } catch (error) {
-        console.error("Error loading jobs:", error);
-        // Fallback or error state could be shown
+    } catch (e) {
+        console.error(e);
     }
 }
 
 function processMetadata() {
-    let newestDate = 0;
-    window.STATE.jobs.forEach(job => {
-        // Collect Categories
-        if (job.categories && Array.isArray(job.categories)) {
-            job.categories.forEach(c => window.STATE.categories.add(c));
-        }
-        // Collect Companies
-        if (job.company) window.STATE.companies.add(job.company);
-        // Collect Sources
-        if (job.source) window.STATE.sources.add(job.source);
-        
-        // Find newest date
-        const d = new Date(job.posted_at || job.fetched_at).getTime();
-        if (d > newestDate) newestDate = d;
+    let cseCount = 0;
+    STATE.jobs.forEach(job => {
+        if (job.categories && job.categories.length > 0) cseCount++;
+        if (job.categories) job.categories.forEach(c => STATE.categories.add(c));
+        if (job.company) STATE.companies.add(job.company);
+        if (job.source) STATE.sources.add(job.source);
     });
 
-    els.heroTotal.textContent = window.STATE.jobs.length;
-    if (newestDate > 0) {
-        els.heroFreshness.textContent = formatTimeAgo(new Date(newestDate));
-    }
+    els.statTotal.textContent = STATE.jobs.length;
+    els.statCse.textContent = cseCount;
+    els.statEmployers.textContent = STATE.companies.size;
+    els.statSources.textContent = STATE.sources.size;
+    
+    els.countCse.textContent = cseCount;
+    els.countAll.textContent = STATE.jobs.length;
 }
 
-/**
- * View Management
- */
 function switchView(viewId) {
-    window.STATE.currentView = viewId.replace('view-', '');
+    STATE.currentView = viewId.replace('view-', '');
     els.views.forEach(v => {
-        if (v.id === viewId) {
-            v.classList.add('active-view');
-        } else {
-            v.classList.remove('active-view');
-        }
+        if (v.id === viewId) v.classList.add('active-view');
+        else v.classList.remove('active-view');
     });
     window.scrollTo(0, 0);
-    
-    // Close mobile menus if open
-    els.navLinksContainer.classList.remove('open');
 }
 
-/**
- * Event Listeners
- */
 function setupEventListeners() {
-    // Navigation
     els.navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
-            const navigateTo = link.getAttribute('data-navigate');
-            if (navigateTo) {
-                // If it's a hash link on same view, just let default scroll happen
-                const href = link.getAttribute('href');
-                if (href && href.startsWith('#') && window.STATE.currentView === navigateTo) {
-                    return;
-                }
-                
-                e.preventDefault();
-                
-                // Handle specific quick filters from nav
-                const filter = link.getAttribute('data-filter');
-                if (filter === 'remote') {
-                    resetFilters();
-                    window.STATE.filters.remote = true;
-                    els.fRemote.checked = true;
-                } else if (filter === 'all') {
-                    resetFilters();
-                }
-                
-                switchView(`view-${navigateTo}`);
-                if (navigateTo === 'listing') applyFiltersAndRender();
-            }
+            const nav = link.getAttribute('data-navigate');
+            if (!nav) return;
+            const href = link.getAttribute('href');
+            if (href && href.startsWith('#') && STATE.currentView === nav) return;
+            e.preventDefault();
+            
+            const filter = link.getAttribute('data-filter');
+            if (filter === 'remote') { resetFilters(); STATE.filters.remote = 'remote'; els.fRemote.value = 'remote'; }
+            if (filter === 'all') resetFilters();
+            
+            // Update active nav state
+            document.querySelectorAll('.main-nav .nav-link').forEach(n => n.classList.remove('active'));
+            if (link.classList.contains('nav-link')) link.classList.add('active');
+
+            switchView(`view-${nav}`);
+            if (nav === 'listing') applyFiltersAndRender();
         });
     });
 
-    // Mobile Toggles
-    if (els.mobileMenuBtn) {
-        els.mobileMenuBtn.addEventListener('click', () => {
-            els.navLinksContainer.classList.toggle('open');
-        });
-    }
-    if (els.mobileFilterToggle) {
-        els.mobileFilterToggle.addEventListener('click', () => {
-            els.listingSidebar.classList.add('open');
-        });
-    }
-    if (els.mobileFilterClose) {
-        els.mobileFilterClose.addEventListener('click', () => {
-            els.listingSidebar.classList.remove('open');
-        });
-    }
-
-    // Landing Search
-    els.landingSearchForm.addEventListener('submit', (e) => {
+    els.heroSearchForm.addEventListener('submit', e => {
         e.preventDefault();
-        window.STATE.filters.search = els.landingSearchInput.value;
-        els.listingSearchInput.value = window.STATE.filters.search;
+        STATE.filters.search = els.heroSearchInput.value;
+        els.sidebarSearch.value = STATE.filters.search;
         switchView('view-listing');
         applyFiltersAndRender();
     });
 
-    // Listing Search & Filters
-    els.listingSearchInput.addEventListener('input', (e) => {
-        window.STATE.filters.search = e.target.value;
-        applyFiltersAndRender();
-    });
-
-    els.filterForm.addEventListener('change', (e) => {
-        window.STATE.filters.mode = els.fEligibility.value;
-        window.STATE.filters.category = els.fCategory.value;
-        window.STATE.filters.company = els.fCompany.value;
-        window.STATE.filters.remote = els.fRemote.checked;
-        window.STATE.filters.source = els.fSource.value;
-        applyFiltersAndRender();
-    });
-
-    els.fSort.addEventListener('change', (e) => {
-        window.STATE.filters.sort = e.target.value;
-        applyFiltersAndRender();
-    });
-
-    els.btnResetFilters.addEventListener('click', () => {
-        resetFilters();
-        applyFiltersAndRender();
-    });
+    els.sidebarSearch.addEventListener('input', e => { STATE.filters.search = e.target.value; applyFiltersAndRender(); });
     
-    els.btnEmptyClear.addEventListener('click', () => {
-        resetFilters();
+    // Bind all selects in sidebar
+    const selects = [els.fCategory, els.fCompany, els.fLocation, els.fRemote, els.fSource, els.fSortSidebar];
+    selects.forEach(sel => {
+        sel.addEventListener('change', e => {
+            STATE.filters[e.target.id.replace('f-', '').replace('-sidebar', '')] = e.target.value;
+            if (e.target.id === 'f-sort-sidebar') els.fSortTop.value = e.target.value;
+            applyFiltersAndRender();
+        });
+    });
+
+    // Top sort syncs with sidebar sort
+    els.fSortTop.addEventListener('change', e => {
+        STATE.filters.sort = e.target.value;
+        els.fSortSidebar.value = e.target.value;
         applyFiltersAndRender();
     });
+
+    // Radio buttons
+    els.fModeRadios.forEach(r => {
+        r.addEventListener('change', e => {
+            STATE.filters.mode = e.target.value;
+            applyFiltersAndRender();
+        });
+    });
+
+    els.btnClearFilters.addEventListener('click', e => { e.preventDefault(); resetFilters(); applyFiltersAndRender(); });
 }
 
 function resetFilters() {
-    window.STATE.filters = { mode: 'cse', search: '', category: '', company: '', remote: false, source: '', sort: 'newest' };
-    els.fEligibility.value = 'cse';
+    STATE.filters = { mode: 'cse', search: '', category: '', company: '', location: '', remote: '', source: '', sort: 'newest' };
+    els.fModeRadios[0].checked = true;
+    els.sidebarSearch.value = '';
     els.fCategory.value = '';
     els.fCompany.value = '';
-    els.fRemote.checked = false;
+    els.fLocation.value = '';
+    els.fRemote.value = '';
     els.fSource.value = '';
-    els.fSort.value = 'newest';
-    els.listingSearchInput.value = '';
-    els.landingSearchInput.value = '';
+    els.fSortSidebar.value = 'newest';
+    els.fSortTop.value = 'newest';
+    els.heroSearchInput.value = '';
 }
 
 function populateFilterDropdowns() {
-    const cats = Array.from(window.STATE.categories).sort();
-    cats.forEach(c => els.fCategory.add(new Option(c, c)));
+    Array.from(STATE.categories).sort().forEach(c => els.fCategory.add(new Option(c, c)));
+    Array.from(STATE.companies).sort().forEach(c => els.fCompany.add(new Option(c, c)));
+    Array.from(STATE.sources).sort().forEach(s => els.fSource.add(new Option(s, s)));
     
-    const comps = Array.from(window.STATE.companies).sort((a,b) => a.toLowerCase().localeCompare(b.toLowerCase()));
-    comps.forEach(c => els.fCompany.add(new Option(c, c)));
-    
-    const srcs = Array.from(window.STATE.sources).sort();
-    srcs.forEach(s => els.fSource.add(new Option(s, s)));
+    const locs = new Set();
+    STATE.jobs.forEach(j => { if (j.location) locs.add(j.location); });
+    Array.from(locs).sort().forEach(l => els.fLocation.add(new Option(l, l)));
 }
 
-/**
- * Rendering: Landing
- */
 function renderLanding() {
-    // 1. Categories
+    // Categories
+    const catIcons = {
+        'Software Engineering': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>',
+        'AI / Machine Learning': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>'
+    };
+    const defaultIcon = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>';
+
     const catCounts = {};
-    window.STATE.jobs.forEach(j => {
-        if (j.categories) j.categories.forEach(c => {
-            catCounts[c] = (catCounts[c] || 0) + 1;
-        });
-    });
-    const sortedCats = Object.entries(catCounts).sort((a,b) => b[1] - a[1]).slice(0, 8);
+    STATE.jobs.forEach(j => { if (j.categories) j.categories.forEach(c => catCounts[c] = (catCounts[c]||0)+1); });
+    const topCats = Object.entries(catCounts).sort((a,b)=>b[1]-a[1]).slice(0, 4);
     
-    els.landingCategories.innerHTML = sortedCats.map(([cat, count]) => `
-        <div class="category-card" onclick="openCategory('${cat.replace(/'/g, "\\'")}')">
-            <span class="category-name">${cat}</span>
-            <span class="category-count">${count} jobs</span>
+    els.landingCategories.innerHTML = topCats.map(([cat, count]) => `
+        <div class="cat-btn" onclick="openCategory('${cat.replace(/'/g,"\\'")}')">
+            <div class="cat-btn-icon">${catIcons[cat] || defaultIcon}</div>
+            <div>
+                <div class="cat-btn-text">${cat}</div>
+                <div class="cat-btn-sub">${count} internships</div>
+            </div>
         </div>
     `).join('');
 
-    // 2. Fresh Internships
-    const freshJobs = [...window.STATE.jobs]
-        .sort((a, b) => new Date(b.posted_at || b.fetched_at) - new Date(a.posted_at || a.fetched_at))
-        .slice(0, 3);
-    
-    els.landingFresh.innerHTML = freshJobs.map(job => createJobCardHTML(job)).join('');
-
-    // 3. Companies
-    const compCounts = {};
-    window.STATE.jobs.forEach(j => {
-        if (j.company) compCounts[j.company] = (compCounts[j.company] || 0) + 1;
-    });
-    const sortedComps = Object.entries(compCounts).sort((a,b) => b[1] - a[1]).slice(0, 12);
-    
-    els.landingCompanies.innerHTML = sortedComps.map(([comp, count]) => `
-        <div class="company-badge-card" onclick="openCompany('${comp.replace(/'/g, "\\'")}')">
-            ${comp}
-            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem; font-weight: normal;">${count} listings</div>
-        </div>
-    `).join('');
+    // Fresh
+    const fresh = [...STATE.jobs].sort((a,b) => new Date(b.posted_at||b.fetched_at) - new Date(a.posted_at||a.fetched_at)).slice(0,3);
+    els.landingFresh.innerHTML = fresh.map(j => createGridCard(j)).join('');
 }
 
 window.openCategory = function(cat) {
-    resetFilters();
-    window.STATE.filters.category = cat;
-    els.fCategory.value = cat;
-    switchView('view-listing');
-    applyFiltersAndRender();
+    resetFilters(); STATE.filters.category = cat; els.fCategory.value = cat; switchView('view-listing'); applyFiltersAndRender();
 };
 
-window.openCompany = function(comp) {
-    resetFilters();
-    window.STATE.filters.company = comp;
-    els.fCompany.value = comp;
-    switchView('view-listing');
-    applyFiltersAndRender();
-};
-
-/**
- * Rendering: Listing
- */
 function applyFiltersAndRender() {
-    const f = window.STATE.filters;
+    const f = STATE.filters;
     const q = f.search.toLowerCase();
 
-    let filtered = window.STATE.jobs.filter(job => {
-        // Mode
+    let filtered = STATE.jobs.filter(job => {
         if (f.mode === 'cse' && (!job.categories || job.categories.length === 0)) return false;
-        
-        // Search
         if (q) {
-            const text = `${job.title} ${job.company} ${job.location} ${job.description || ''} ${job.skills ? job.skills.join(' ') : ''}`.toLowerCase();
+            const text = `${job.title} ${job.company} ${job.location}`.toLowerCase();
             if (!text.includes(q)) return false;
         }
-        
-        // Category
         if (f.category && (!job.categories || !job.categories.includes(f.category))) return false;
-        
-        // Company
         if (f.company && job.company !== f.company) return false;
-        
-        // Remote
-        if (f.remote && !job.remote) return false;
-        
-        // Source
+        if (f.location && job.location !== f.location) return false;
+        if (f.remote === 'remote' && !job.remote) return false;
+        if (f.remote === 'onsite' && job.remote) return false;
         if (f.source && job.source !== f.source) return false;
-        
         return true;
     });
 
-    // Sort
-    if (f.sort === 'newest') {
-        filtered.sort((a, b) => new Date(b.posted_at || b.fetched_at) - new Date(a.posted_at || a.fetched_at));
-    } else if (f.sort === 'company') {
-        filtered.sort((a, b) => (a.company || '').localeCompare(b.company || ''));
-    } else if (f.sort === 'relevance' && f.search) {
-        // Basic relevance: title match > company match > other
-        filtered.sort((a, b) => {
-            const aTitleMatch = (a.title || '').toLowerCase().includes(q) ? 1 : 0;
-            const bTitleMatch = (b.title || '').toLowerCase().includes(q) ? 1 : 0;
-            return bTitleMatch - aTitleMatch;
-        });
-    }
+    if (f.sort === 'newest') filtered.sort((a,b) => new Date(b.posted_at||b.fetched_at) - new Date(a.posted_at||a.fetched_at));
+    else if (f.sort === 'company') filtered.sort((a,b) => (a.company||'').localeCompare(b.company||''));
 
-    // Render
-    els.resultsCountText.textContent = `${filtered.length} internship${filtered.length !== 1 ? 's' : ''} found`;
-    
+    // Update Headers
+    const isCse = f.mode === 'cse';
+    els.resultsCountTitle.textContent = `${filtered.length} ${isCse ? 'CSE ' : ''}internship${filtered.length!==1?'s':''}`;
+    els.resultsCountSubtitle.textContent = `Showing ${isCse ? 'CSE-qualified' : 'all eligible'} internships from ${STATE.jobs.length} fresh eligible internships.`;
+
     if (filtered.length === 0) {
         els.resultsGrid.innerHTML = '';
         els.emptyState.hidden = false;
     } else {
         els.emptyState.hidden = true;
-        els.resultsGrid.innerHTML = filtered.map(job => createJobCardHTML(job)).join('');
+        els.resultsGrid.innerHTML = filtered.map(job => createListCard(job)).join('');
     }
 }
 
-function createJobCardHTML(job) {
-    const isRemote = job.remote ? `<span class="badge badge-green">Remote</span>` : '';
-    const cats = (job.categories || []).slice(0, 2).map(c => `<span class="badge badge-blue">${c}</span>`).join('');
-    const dDate = new Date(job.posted_at || job.fetched_at);
-    const timeAgo = formatTimeAgo(dDate);
-
-    // Escape quotes for inline onclick
+function createGridCard(job) {
+    const timeAgo = formatTimeAgo(new Date(job.posted_at||job.fetched_at));
     const safeId = String(job.id).replace(/'/g, "\\'");
-
+    const fallback = getFallback(job.company);
     return `
-        <div class="job-card" onclick="openDetail('${safeId}')" role="article" tabindex="0">
-            <div class="job-card-header">
-                <div>
-                    <h3 class="job-card-title">${job.title}</h3>
-                    <div class="job-card-company">${job.company}</div>
-                </div>
-                ${isRemote}
+        <div class="card" onclick="openDetail('${safeId}')">
+            <div class="card-header">
+                <img src="${getLogoUrl(job.company)}" onerror="this.src='${fallback}'" class="card-company-logo">
+                <button class="bookmark-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg></button>
             </div>
-            
-            <div class="job-card-meta">
-                <span>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-right: 2px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                    ${job.location || 'Location not specified'}
-                </span>
+            <h3 class="card-title">${job.title}</h3>
+            <div class="card-company">${job.company}</div>
+            <div class="card-tags">
+                ${(job.categories||[]).slice(0,2).map(c=>`<span class="badge badge-blue">${c}</span>`).join('')}
             </div>
-            
-            <div class="tags-row" style="margin-bottom: 1.5rem;">
-                ${cats}
-            </div>
-            
-            <div class="job-card-footer">
-                <div class="job-card-time">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                    ${timeAgo}
-                </div>
-                <button class="btn btn-primary" onclick="event.stopPropagation(); window.open('${job.url}', '_blank')">Apply</button>
+            <div class="card-meta">
+                <div class="card-meta-row"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> ${job.location || 'Anywhere'}</div>
+                <div class="card-meta-row"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> Updated ${timeAgo}</div>
+                <div>Source: ${job.source}</div>
             </div>
         </div>
     `;
 }
 
-/**
- * Rendering: Detail
- */
-window.openDetail = function(id) {
-    const job = window.STATE.jobs.find(j => String(j.id) === id);
-    if (!job) return;
+function createListCard(job) {
+    const timeAgo = formatTimeAgo(new Date(job.posted_at||job.fetched_at));
+    const safeId = String(job.id).replace(/'/g, "\\'");
+    const fallback = getFallback(job.company);
+    return `
+        <div class="list-card" onclick="openDetail('${safeId}')">
+            <img src="${getLogoUrl(job.company)}" onerror="this.src='${fallback}'" class="lc-logo">
+            <div class="lc-body">
+                <h3 class="lc-title">${job.title}</h3>
+                <div class="lc-company">${job.company}</div>
+                <div class="lc-tags">
+                    ${(job.categories||[]).slice(0,3).map(c=>`<span class="badge badge-blue">${c}</span>`).join('')}
+                </div>
+                <div class="lc-meta">
+                    <span class="lc-meta-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> ${job.location || 'Anywhere'}</span>
+                    <span class="badge badge-bg">${job.remote ? 'Remote' : 'On-site'}</span>
+                    <span class="lc-meta-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> Updated ${timeAgo}</span>
+                    <span>Source: ${job.source}</span>
+                </div>
+            </div>
+            <div class="lc-actions">
+                <button class="bookmark-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg></button>
+                <button class="btn btn-primary" onclick="event.stopPropagation(); window.open('${job.url}', '_blank')">Apply <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg></button>
+            </div>
+        </div>
+    `;
+}
 
-    window.STATE.selectedJobId = id;
+window.openDetail = function(id) {
+    const job = STATE.jobs.find(j => String(j.id) === id);
+    if (!job) return;
+    STATE.selectedJobId = id;
+    
+    els.breadcrumbTitle.textContent = job.title;
+    els.detailLogo.src = getLogoUrl(job.company);
+    els.detailLogo.onerror = () => { els.detailLogo.src = getFallback(job.company); };
     
     els.detailTitle.textContent = job.title;
     els.detailCompany.textContent = job.company;
-    els.detailLocation.textContent = job.location || 'Location not specified';
-    els.detailRemoteBadge.hidden = !job.remote;
+    els.detailLocText.textContent = job.location || 'Anywhere';
+    els.detailRemText.textContent = job.remote ? 'Remote' : 'On-site';
     
-    // Description formatting
-    let desc = job.description || 'No description provided by the employer.';
-    if (!desc.includes('<')) {
-        // Plain text to simple HTML
-        desc = desc.split('\n').map(p => p.trim() ? `<p>${p}</p>` : '').join('');
-    }
-    els.detailDescription.innerHTML = desc;
-
-    // Skills & Categories
-    const combinedTags = [...(job.categories || []), ...(job.skills || [])];
-    if (combinedTags.length > 0) {
-        els.detailSkillsSection.hidden = false;
-        els.detailSkills.innerHTML = combinedTags.map(t => `<span class="badge badge-outline">${t}</span>`).join('');
+    if (job.categories && job.categories.length > 0) {
+        els.detailCatBadge.textContent = job.categories[0];
+        els.detailCatBadge.hidden = false;
+        els.sideCategory.textContent = job.categories.join(', ');
     } else {
-        els.detailSkillsSection.hidden = true;
+        els.detailCatBadge.hidden = true;
+        els.sideCategory.textContent = 'None';
     }
 
-    // Meta & Apply
+    const timeAgo = formatTimeAgo(new Date(job.posted_at||job.fetched_at));
+    els.detailUpdated.textContent = `Updated ${timeAgo}`;
+    els.detailSource.textContent = job.source;
+    
     els.detailApplyBtn.href = job.url;
-    els.detailFreshness.textContent = formatTimeAgo(new Date(job.posted_at || job.fetched_at));
-    els.detailSource.textContent = job.source || 'Unknown';
-
-    // Related Internships
-    renderRelated(job);
-
+    
+    let desc = job.description || '';
+    if (!desc.includes('<')) desc = desc.split('\n').map(p => p.trim() ? `<p>${p}</p>` : '').join('');
+    els.detailDesc.innerHTML = desc;
+    
+    const tags = [...(job.categories||[]), ...(job.skills||[])];
+    els.detailSkills.innerHTML = tags.map(t=>`<span class="badge badge-blue">${t}</span>`).join('');
+    
+    // Side
+    els.sideCompany.innerHTML = `${job.company} <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>`;
+    els.sideLocation.textContent = job.location || 'Anywhere';
+    els.sideRemote.textContent = job.remote ? 'Remote' : 'On-site';
+    els.sideSource.textContent = job.source;
+    els.sideUpdated.textContent = timeAgo;
+    els.sideId.textContent = job.id || 'Not provided';
+    
     switchView('view-detail');
 };
 
-function renderRelated(currentJob) {
-    // Simple deterministic matching: same company OR overlapping categories
-    let related = window.STATE.jobs.filter(j => {
-        if (j.id === currentJob.id) return false;
-        if (j.company === currentJob.company) return true;
-        if (currentJob.categories && j.categories) {
-            const intersection = currentJob.categories.filter(c => j.categories.includes(c));
-            if (intersection.length > 0) return true;
-        }
-        return false;
-    });
-
-    // Sort by newest, take top 2
-    related.sort((a, b) => new Date(b.posted_at || b.fetched_at) - new Date(a.posted_at || a.fetched_at));
-    related = related.slice(0, 2);
-
-    if (related.length === 0) {
-        els.detailRelatedGrid.innerHTML = '';
-        els.detailRelatedEmpty.hidden = false;
-    } else {
-        els.detailRelatedEmpty.hidden = true;
-        els.detailRelatedGrid.innerHTML = related.map(job => createJobCardHTML(job)).join('');
-    }
-}
-
-/**
- * Utilities
- */
 function formatTimeAgo(date) {
-    const seconds = Math.floor((new Date() - date) / 1000);
-    let interval = seconds / 3600;
-    if (interval < 1) {
-        const mins = Math.floor(seconds / 60);
-        return mins <= 1 ? 'Just now' : Math.floor(mins) + ' mins ago';
-    }
-    if (interval < 24) {
-        return Math.floor(interval) + ' hours ago';
-    }
-    interval = seconds / 86400;
-    return Math.floor(interval) + ' days ago';
+    const s = Math.floor((new Date() - date) / 1000);
+    let i = s / 3600;
+    if (i < 1) return Math.floor(s/60) <= 1 ? 'Just now' : Math.floor(s/60) + ' mins ago';
+    if (i < 24) return Math.floor(i) + ' hours ago';
+    return Math.floor(s / 86400) + ' days ago';
 }
 
-// Start
 init();
