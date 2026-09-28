@@ -81,8 +81,8 @@
                     <div class="stat-icon bg-blue"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg></div>
                     <div class="stat-text">
                         <div class="stat-num" id="stat-total">...</div>
-                        <div class="stat-label">Fresh Internships</div>
-                        <div class="stat-sub">(updated within 24 hours)</div>
+                        <div class="stat-label">All Internships</div>
+                        <div class="stat-sub">currently available</div>
                     </div>
                 </div>
                 <div class="stat-item">
@@ -90,7 +90,7 @@
                     <div class="stat-text">
                         <div class="stat-num" id="stat-cse">...</div>
                         <div class="stat-label">CSE Internships</div>
-                        <div class="stat-sub">(matching technical taxonomy)</div>
+                        <div class="stat-sub">matching taxonomy</div>
                     </div>
                 </div>
                 <div class="stat-item">
@@ -105,8 +105,16 @@
                     <div class="stat-icon bg-purple"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg></div>
                     <div class="stat-text">
                         <div class="stat-num" id="stat-sources">...</div>
-                        <div class="stat-label">Job Sources</div>
+                        <div class="stat-label">Sources</div>
                         <div class="stat-sub">public platforms</div>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon bg-green" style="background:#10B981;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></div>
+                    <div class="stat-text">
+                        <div class="stat-num" id="stat-fresh">...</div>
+                        <div class="stat-label">Fresh Today</div>
+                        <div class="stat-sub">past 24 hours</div>
                     </div>
                 </div>
             </div>
@@ -157,14 +165,45 @@
                             <label class="filter-label">View</label>
                             <div class="radio-group">
                                 <label class="radio-label">
-                                    <input type="radio" name="f_mode" value="cse" checked>
+                                    <input type="radio" name="f_mode" value="all" checked>
+                                    <span class="custom-radio"></span>
+                                    <span class="radio-text text-muted">All Internships (<span id="count-all">0</span>)</span>
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="f_mode" value="cse">
                                     <span class="custom-radio"></span>
                                     <span class="radio-text">CSE Internships (<span id="count-cse-only">0</span>)</span>
                                 </label>
+                            </div>
+                        </div>
+
+                        <div class="filter-group">
+                            <label class="filter-label">Time posted</label>
+                            <div class="radio-group">
                                 <label class="radio-label">
-                                    <input type="radio" name="f_mode" value="all">
+                                    <input type="radio" name="f_time" value="all" checked>
                                     <span class="custom-radio"></span>
-                                    <span class="radio-text text-muted">All Eligible Internships (<span id="count-all">0</span>)</span>
+                                    <span class="radio-text">Any time</span>
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="f_time" value="24">
+                                    <span class="custom-radio"></span>
+                                    <span class="radio-text">Past 24 hours</span>
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="f_time" value="72">
+                                    <span class="custom-radio"></span>
+                                    <span class="radio-text">Past 3 days</span>
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="f_time" value="168">
+                                    <span class="custom-radio"></span>
+                                    <span class="radio-text">Past 7 days</span>
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="f_time" value="720">
+                                    <span class="custom-radio"></span>
+                                    <span class="radio-text">Past 30 days</span>
                                 </label>
                             </div>
                         </div>

@@ -39,15 +39,15 @@ def test_freshness_filtering():
     
     now = datetime.now(timezone.utc)
     fresh_date = now - timedelta(hours=12)
-    stale_date = now - timedelta(hours=48)
+    stale_date = now - timedelta(days=40)
     
     j_fresh = {"title": "A Intern", "company": "A", "url": "http://a.com", "posted_at": fresh_date}
     j_stale = {"title": "B Intern", "company": "B", "url": "http://b.com", "posted_at": stale_date}
     j_missing = {"title": "C Intern", "company": "C", "url": "http://c.com", "posted_at": None}
     
     pipeline = InternshipScannerPipeline(".")
-    pipeline.config = {"max_age_hours": 24}
+    pipeline.config = {"global": {"retention_days": 30}}
     
-    assert pipeline.is_fresh(j_fresh, now) == True
-    assert pipeline.is_fresh(j_stale, now) == False
-    assert pipeline.is_fresh(j_missing, now) == True # Missing dates are usually accepted
+    assert pipeline.is_retained(j_fresh, now) == True
+    assert pipeline.is_retained(j_stale, now) == False
+    assert pipeline.is_retained(j_missing, now) == True # Missing dates are usually accepted

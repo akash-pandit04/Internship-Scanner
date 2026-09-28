@@ -37,6 +37,7 @@ const els = {
     
     // Listing Sidebar
     fModeRadios: document.getElementsByName('f_mode'),
+    fTimeRadios: document.getElementsByName('f_time'),
     countCse: document.getElementById('count-cse-only'),
     countAll: document.getElementById('count-all'),
     sidebarSearch: document.getElementById('listing-sidebar-search'),
@@ -122,6 +123,16 @@ function processMetadata() {
     els.statCse.textContent = cseCount;
     els.statEmployers.textContent = STATE.companies.size;
     els.statSources.textContent = STATE.sources.size;
+    
+    // Fresh Today Count
+    const now = new Date();
+    const freshCount = STATE.jobs.filter(j => {
+        const d = new Date(j.posted_at || j.fetched_at);
+        return (now - d) / (1000 * 60 * 60) <= 24;
+    }).length;
+    if (document.getElementById('stat-fresh')) {
+        document.getElementById('stat-fresh').textContent = freshCount;
+    }
     
     els.countCse.textContent = cseCount;
     els.countAll.textContent = STATE.jobs.length;
@@ -216,13 +227,20 @@ function setupEventListeners() {
             applyFiltersAndRender();
         });
     });
+    els.fTimeRadios.forEach(r => {
+        r.addEventListener('change', e => {
+            STATE.filters.time = e.target.value;
+            applyFiltersAndRender();
+        });
+    });
 
     els.btnClearFilters.addEventListener('click', e => { e.preventDefault(); resetFilters(); applyFiltersAndRender(); });
 }
 
 function resetFilters() {
-    STATE.filters = { mode: 'cse', search: '', category: '', company: '', location: '', remote: '', source: '', sort: 'newest' };
-    els.fModeRadios[0].checked = true;
+    STATE.filters = { mode: 'all', time: 'all', search: '', category: '', company: '', location: '', remote: '', source: '', sort: 'newest' };
+    Array.from(els.fModeRadios).find(r => r.value === 'all').checked = true;
+    Array.from(els.fTimeRadios).find(r => r.value === 'all').checked = true;
     els.sidebarSearch.value = '';
     els.fCategory.value = '';
     els.fCompany.value = '';
@@ -278,9 +296,17 @@ window.openCategory = function(cat) {
 function applyFiltersAndRender() {
     const f = STATE.filters;
     const q = f.search.toLowerCase();
+    const now = new Date();
 
     let filtered = STATE.jobs.filter(job => {
         if (f.mode === 'cse' && (!job.categories || job.categories.length === 0)) return false;
+        
+        if (f.time !== 'all') {
+            const hours = parseInt(f.time, 10);
+            const d = new Date(job.posted_at || job.fetched_at);
+            if ((now - d) / (1000 * 60 * 60) > hours) return false;
+        }
+
         if (q) {
             const text = `${job.title} ${job.company} ${job.location}`.toLowerCase();
             if (!text.includes(q)) return false;
@@ -299,8 +325,24 @@ function applyFiltersAndRender() {
 
     // Update Headers
     const isCse = f.mode === 'cse';
-    els.resultsCountTitle.textContent = `${filtered.length} ${isCse ? 'CSE ' : ''}internship${filtered.length!==1?'s':''}`;
-    els.resultsCountSubtitle.textContent = `Showing ${isCse ? 'CSE-qualified' : 'all eligible'} internships from ${STATE.jobs.length} fresh eligible internships.`;
+    els.resultsCountTitle.textContent = `Internships`;
+    
+    // Build active filters text
+    let activeFilters = [];
+    if (isCse) activeFilters.push('CSE Only');
+    if (f.time !== 'all') {
+        const h = parseInt(f.time, 10);
+        if (h <= 24) activeFilters.push('Past 24 hours');
+        else activeFilters.push(`Past ${h/24} days`);
+    }
+    if (f.category) activeFilters.push(f.category);
+    if (f.company) activeFilters.push(f.company);
+    if (f.location) activeFilters.push(f.location);
+    if (f.remote) activeFilters.push(f.remote === 'remote' ? 'Remote' : 'On-site');
+    if (f.source) activeFilters.push(f.source);
+    
+    let filterStr = activeFilters.length > 0 ? ` Filters: ${activeFilters.join(', ')}` : '';
+    els.resultsCountSubtitle.textContent = `${filtered.length} opportunities found.${filterStr}`;
 
     if (filtered.length === 0) {
         els.resultsGrid.innerHTML = '';

@@ -15,7 +15,7 @@ def test_greenhouse_partial_failure(monkeypatch, tmp_path):
     monkeypatch.setattr(l_sources, "fetch_json", mock_get)
     
     pipeline = InternshipScannerPipeline(tmp_path)
-    pipeline.config = {"store_max_age_hours": 999999}
+    pipeline.config = {"retention_days": 999999}
     
     def mock_companies(kind):
         if kind == "greenhouse":

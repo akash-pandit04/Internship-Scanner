@@ -121,7 +121,7 @@ def _companies(kind):
 class GreenhouseSource(BaseSource):
     def fetch(self):
         # We need the global config's max_age_hours
-        max_h = self.config.get("global", {}).get("store_max_age_hours", 24)
+        retention_days = self.config.get("global", {}).get("retention_days", 30)
         now = datetime.now(timezone.utc)
         out = []
         for board_data in _companies("greenhouse"):
@@ -142,7 +142,7 @@ class GreenhouseSource(BaseSource):
                     upd = datetime.fromisoformat(j["updated_at"])
                 except (KeyError, ValueError):
                     continue
-                if (now - upd).total_seconds() / 3600 <= max_h:
+                if (now - upd).total_seconds() / 86400 <= retention_days:
                     fresh.append((j, upd))
             for j, upd in fresh[:15]:
                 desc = ""
@@ -165,7 +165,7 @@ class GreenhouseSource(BaseSource):
 
 class LeverSource(BaseSource):
     def fetch(self):
-        max_h = self.config.get("global", {}).get("store_max_age_hours", 24)
+        retention_days = self.config.get("global", {}).get("retention_days", 30)
         now = datetime.now(timezone.utc)
         out = []
         for board_data in _companies("lever"):
@@ -186,7 +186,7 @@ class LeverSource(BaseSource):
                     posted = datetime.fromtimestamp(j["createdAt"] / 1000, tz=timezone.utc)
                 except (KeyError, TypeError, ValueError):
                     continue
-                if (now - posted).total_seconds() / 3600 > max_h:
+                if (now - posted).total_seconds() / 86400 > retention_days:
                     continue
                 loc = (j.get("categories") or {}).get("location") or ""
                 out.append({

@@ -1,1 +1,1 @@
-{"max_pages": 100, "global": {"store_max_age_hours": 24}}
+{"max_pages": 100, "global": {"retention_days": 30}}

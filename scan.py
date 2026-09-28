@@ -181,14 +181,14 @@ class InternshipScannerPipeline:
         raw_fp = f"{company}|{title}|{location}|{url}"
         return re.sub(r"[^a-z0-9]+", "_", raw_fp)
         
-    def is_fresh(self, raw_job: dict, now: datetime) -> bool:
-        max_age_hours = self.config.get("max_age_hours", 24)
+    def is_retained(self, raw_job: dict, now: datetime) -> bool:
+        retention_days = self.config.get("global", {}).get("retention_days", 30)
         posted_at = raw_job.get("posted_at")
         if not posted_at:
             return True # missing dates are accepted
         try:
             age = now - posted_at
-            return age.total_seconds() <= (max_age_hours * 3600)
+            return age.total_seconds() <= (retention_days * 86400)
         except Exception:
             return True # malformed handled safely
 
@@ -253,7 +253,7 @@ class InternshipScannerPipeline:
             "fetched": len(raw_jobs),
             "normalized": 0,
             "schema_rejected": 0,
-            "stale_rejected": 0,
+            "expired_rejected": 0,
             "non_internship": 0,
             "uncertain": 0,
             "accepted": 0,
@@ -282,10 +282,10 @@ class InternshipScannerPipeline:
                 rejected_jobs.append({"reason": "schema", "job": raw})
                 continue
                 
-            # 2.5 Freshness Filtering
-            if not self.is_fresh(raw, now):
-                metrics["stale_rejected"] += 1
-                rejected_jobs.append({"reason": "stale", "job": raw})
+            # 2.5 Retention Filtering
+            if not self.is_retained(raw, now):
+                metrics["expired_rejected"] += 1
+                rejected_jobs.append({"reason": "expired", "job": raw})
                 continue
             if emp: reg_metrics[emp]["fresh_jobs"] += 1
                 
@@ -405,7 +405,7 @@ class InternshipScannerPipeline:
         # Save output
         out_data = {
             "generated_at": now.isoformat(),
-            "config": {"max_age_hours": self.config.get("max_age_hours", 24)},
+            "config": {"retention_days": self.config.get("global", {}).get("retention_days", 30)},
             "source_meta": {},
             "jobs": [j.to_dict() for j in processed_jobs.values()]
         }
