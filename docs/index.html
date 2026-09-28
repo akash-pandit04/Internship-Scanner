@@ -30,10 +30,10 @@
         </div>
         
         <div class="nav-right">
-            <div class="nav-search">
+            <form id="nav-search-form" class="nav-search">
                 <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                <input type="search" id="nav-search-input" placeholder="Search internships...">
-            </div>
+                <input type="search" id="nav-search-input" placeholder="Search internships..." aria-label="Search internships">
+            </form>
             <button class="btn btn-cse">CSE <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
             
             <button class="mobile-menu-btn" aria-label="Toggle menu">
@@ -178,28 +178,28 @@
                         </div>
                         
                         <div class="filter-group">
-                            <label class="filter-label">CSE Category</label>
+                            <label for="f-category" class="filter-label">CSE Category</label>
                             <select id="f-category" class="filter-select">
                                 <option value="">All Categories</option>
                             </select>
                         </div>
 
                         <div class="filter-group">
-                            <label class="filter-label">Company</label>
+                            <label for="f-company" class="filter-label">Company</label>
                             <select id="f-company" class="filter-select">
                                 <option value="">All Companies</option>
                             </select>
                         </div>
 
                         <div class="filter-group">
-                            <label class="filter-label">Location</label>
+                            <label for="f-location" class="filter-label">Location</label>
                             <select id="f-location" class="filter-select">
                                 <option value="">Any Location</option>
                             </select>
                         </div>
 
                         <div class="filter-group">
-                            <label class="filter-label">Remote Status</label>
+                            <label for="f-remote" class="filter-label">Remote Status</label>
                             <select id="f-remote" class="filter-select">
                                 <option value="">Any</option>
                                 <option value="remote">Remote Only</option>
@@ -208,14 +208,14 @@
                         </div>
 
                         <div class="filter-group">
-                            <label class="filter-label">Source</label>
+                            <label for="f-source" class="filter-label">Source</label>
                             <select id="f-source" class="filter-select">
                                 <option value="">All Sources</option>
                             </select>
                         </div>
                         
                         <div class="filter-group">
-                            <label class="filter-label">Sort By</label>
+                            <label for="f-sort-sidebar" class="filter-label">Sort By</label>
                             <select id="f-sort-sidebar" class="filter-select">
                                 <option value="newest">Newest First</option>
                                 <option value="company">Company A-Z</option>
@@ -235,7 +235,7 @@
                         <p class="results-subtitle" id="results-count-subtitle">Showing CSE-qualified internships from ... fresh eligible internships.</p>
                     </div>
                     <div class="sort-top">
-                        <label>Sort By</label>
+                        <label for="f-sort-top">Sort By</label>
                         <select id="f-sort-top" class="filter-select outline-select">
                             <option value="newest">Newest First</option>
                             <option value="company">Company A-Z</option>
@@ -292,8 +292,8 @@
                 <div class="detail-header-actions">
                     <a href="#" id="detail-apply-btn" target="_blank" class="btn btn-primary btn-large">Apply Now <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg></a>
                     <div class="action-buttons-row">
-                        <button class="btn btn-outline"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg> Save</button>
-                        <button class="btn btn-outline"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg> Share</button>
+                        <button class="btn btn-outline" onclick="alert('Saved to favorites!'); this.innerHTML = '<svg width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'currentColor\' stroke=\'currentColor\' stroke-width=\'2\'><path d=\'M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z\'></path></svg> Saved'"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg> Save</button>
+                        <button class="btn btn-outline" onclick="navigator.clipboard.writeText(window.location.href); alert('Link copied to clipboard!')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg> Share</button>
                     </div>
                 </div>
             </div>

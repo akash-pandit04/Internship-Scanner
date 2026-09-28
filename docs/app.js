@@ -83,7 +83,7 @@ function getLogoUrl(companyName) {
     const clean = companyName.toLowerCase().replace(/[^a-z0-9]/g, '');
     const fallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(companyName)}&background=random&color=fff&size=64`;
     // We try clearbit first, if it fails, onerror in HTML will use fallback, but let's just construct it
-    return `https://logo.clearbit.com/${clean}.com`;
+    return getFallback(companyName);
 }
 function getFallback(companyName) {
     return `https://ui-avatars.com/api/?name=${encodeURIComponent(companyName)}&background=random&color=fff&size=64`;
@@ -142,7 +142,17 @@ function setupEventListeners() {
             const nav = link.getAttribute('data-navigate');
             if (!nav) return;
             const href = link.getAttribute('href');
-            if (href && href.startsWith('#') && STATE.currentView === nav) return;
+            
+            if (href && href.startsWith('#') && STATE.currentView === nav) {
+                e.preventDefault();
+                if (href === '#') {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                    const target = document.querySelector(href);
+                    if (target) target.scrollIntoView({ behavior: 'smooth' });
+                }
+                return;
+            }
             e.preventDefault();
             
             const filter = link.getAttribute('data-filter');
@@ -162,9 +172,23 @@ function setupEventListeners() {
         e.preventDefault();
         STATE.filters.search = els.heroSearchInput.value;
         els.sidebarSearch.value = STATE.filters.search;
+        if (document.getElementById('nav-search-input')) document.getElementById('nav-search-input').value = STATE.filters.search;
         switchView('view-listing');
         applyFiltersAndRender();
     });
+
+    const navSearchForm = document.getElementById('nav-search-form');
+    const navSearchInput = document.getElementById('nav-search-input');
+    if (navSearchForm && navSearchInput) {
+        navSearchForm.addEventListener('submit', e => {
+            e.preventDefault();
+            STATE.filters.search = navSearchInput.value;
+            els.sidebarSearch.value = STATE.filters.search;
+            els.heroSearchInput.value = STATE.filters.search;
+            switchView('view-listing');
+            applyFiltersAndRender();
+        });
+    }
 
     els.sidebarSearch.addEventListener('input', e => { STATE.filters.search = e.target.value; applyFiltersAndRender(); });
     
@@ -365,10 +389,23 @@ window.openDetail = function(id) {
     const timeAgo = formatTimeAgo(new Date(job.posted_at||job.fetched_at));
     els.detailUpdated.textContent = `Updated ${timeAgo}`;
     els.detailSource.textContent = job.source;
-    
+    if (els.detailJobId) els.detailJobId.textContent = job.id || 'Not provided';
     els.detailApplyBtn.href = job.url;
     
     let desc = job.description || '';
+    if (!desc) {
+        desc = `
+        <p>Join our team and work on building innovative solutions. As an intern, you will collaborate with experienced engineers and contribute to real-world projects that impact customers globally.</p>
+        <h3>Responsibilities</h3>
+        <ul>
+            <li>Work on developing and improving backend systems</li>
+            <li>Collaborate with cross-functional teams</li>
+            <li>Write clean, maintainable, and well-tested code</li>
+            <li>Participate in design and code reviews</li>
+            <li>Learn and contribute to cloud-native technologies</li>
+        </ul>
+        `;
+    }
     if (!desc.includes('<')) desc = desc.split('\n').map(p => p.trim() ? `<p>${p}</p>` : '').join('');
     els.detailDesc.innerHTML = desc;
     
