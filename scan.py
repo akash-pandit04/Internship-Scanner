@@ -14,6 +14,7 @@ from sources.registry import SourceRegistry
 import sources.adapters.legacy
 import sources.adapters.ashby
 import sources.adapters.smartrecruiters
+import sources.adapters.ycombinator
 from eligibility import determine_eligibility, EligibilityStatus
 from schema import validate_job_schema, JobRecord
 

@@ -46,6 +46,10 @@
       "max_pages": 10,
       "timeout": 15,
       "max_retries": 3
+    },
+    "ycombinator": {
+      "enabled": true,
+      "interval_minutes": 60
     }
   }
 }
