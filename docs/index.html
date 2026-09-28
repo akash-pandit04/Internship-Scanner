@@ -22,6 +22,7 @@
             </a>
             <div class="nav-links">
                 <a href="#" class="nav-link active" data-navigate="listing" data-filter="all">Internships</a>
+                <a href="#" class="nav-link" data-navigate="listing" data-filter="jobs">Jobs</a>
                 <a href="#categories" class="nav-link" data-navigate="landing">Roles</a>
                 <a href="#companies" class="nav-link" data-navigate="landing">Companies</a>
                 <a href="#" class="nav-link" data-navigate="listing" data-filter="remote">Remote</a>
@@ -140,6 +141,21 @@
                 </div>
                 <div class="cards-grid" id="landing-fresh-internships">
                     <!-- Dynamic fresh cards -->
+                </div>
+            </div>
+        </section>
+
+        <section class="page-section bg-gray" style="background: #f8fafc; padding: 4rem 0;">
+            <div class="section-container">
+                <div class="section-header">
+                    <h2>All Opportunities</h2>
+                    <a href="#" class="view-all-link" data-navigate="listing">Filter results &rarr;</a>
+                </div>
+                <div class="cards-grid" id="landing-all-internships" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem;">
+                    <!-- Dynamic all cards -->
+                </div>
+                <div style="text-align: center; margin-top: 2rem;">
+                    <button class="btn btn-primary" onclick="document.querySelector('[data-navigate=listing]').click()">View with Advanced Filters</button>
                 </div>
             </div>
         </section>

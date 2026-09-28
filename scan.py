@@ -291,15 +291,15 @@ class InternshipScannerPipeline:
                 
             # 3. Eligibility
             eligibility = determine_eligibility(raw.get("title", ""), raw.get("description", ""), raw.get("employment_type", ""))
-            if eligibility == EligibilityStatus.NON_INTERNSHIP:
-                metrics["non_internship"] += 1
-                rejected_jobs.append({"reason": "non_internship", "job": raw})
-                continue
-            elif eligibility == EligibilityStatus.UNCERTAIN:
-                metrics["uncertain"] += 1
-                rejected_jobs.append({"reason": "uncertain", "job": raw})
-                continue
-            if emp: reg_metrics[emp]["internship_jobs"] += 1
+            if eligibility == EligibilityStatus.ELIGIBLE:
+                raw["job_type"] = "internship"
+                if emp: reg_metrics[emp]["internship_jobs"] += 1
+            else:
+                raw["job_type"] = "job"
+                if eligibility == EligibilityStatus.NON_INTERNSHIP:
+                    metrics["non_internship"] += 1
+                else:
+                    metrics["uncertain"] += 1
                 
             # 4. Categorization
             cats = self.categorizer.categorize(raw["title"], raw["description"])
@@ -389,7 +389,8 @@ class InternshipScannerPipeline:
                 fetched_at=now,
                 categories=cats,
                 skills=[],
-                score=score_data["score"]
+                score=score_data["score"],
+                job_type=raw.get("job_type", "internship")
             )
             processed_jobs[fp] = record
             metrics["accepted"] += 1

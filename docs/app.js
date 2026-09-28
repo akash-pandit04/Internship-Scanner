@@ -16,7 +16,8 @@ window.STATE = {
         location: '',
         remote: '',
         source: '',
-        sort: 'newest'
+        sort: 'newest',
+        type: 'internship'
     },
     selectedJobId: null
 };
@@ -34,6 +35,7 @@ const els = {
     statSources: document.getElementById('stat-sources'),
     landingCategories: document.getElementById('landing-categories'),
     landingFresh: document.getElementById('landing-fresh-internships'),
+    landingAll: document.getElementById('landing-all-internships'),
     
     // Listing Sidebar
     fModeRadios: document.getElementsByName('f_mode'),
@@ -111,22 +113,23 @@ async function loadData() {
 }
 
 function processMetadata() {
+    const internshipsOnly = STATE.jobs.filter(j => j.job_type === 'internship' || !j.job_type);
     let cseCount = 0;
-    STATE.jobs.forEach(job => {
+    internshipsOnly.forEach(job => {
         if (job.categories && job.categories.length > 0) cseCount++;
         if (job.categories) job.categories.forEach(c => STATE.categories.add(c));
         if (job.company) STATE.companies.add(job.company);
         if (job.source) STATE.sources.add(job.source);
     });
 
-    els.statTotal.textContent = STATE.jobs.length;
+    els.statTotal.textContent = internshipsOnly.length;
     els.statCse.textContent = cseCount;
     els.statEmployers.textContent = STATE.companies.size;
     els.statSources.textContent = STATE.sources.size;
     
     // Fresh Today Count
     const now = new Date();
-    const freshCount = STATE.jobs.filter(j => {
+    const freshCount = internshipsOnly.filter(j => {
         const d = new Date(j.posted_at || j.fetched_at);
         return (now - d) / (1000 * 60 * 60) <= 24;
     }).length;
@@ -167,8 +170,9 @@ function setupEventListeners() {
             e.preventDefault();
             
             const filter = link.getAttribute('data-filter');
-            if (filter === 'remote') { resetFilters(); STATE.filters.remote = 'remote'; els.fRemote.value = 'remote'; }
-            if (filter === 'all') resetFilters();
+            if (filter === 'remote') { resetFilters(); STATE.filters.remote = 'remote'; els.fRemote.value = 'remote'; STATE.filters.type = 'all'; }
+            if (filter === 'all') { resetFilters(); STATE.filters.type = 'internship'; }
+            if (filter === 'jobs') { resetFilters(); STATE.filters.type = 'job'; }
             
             // Update active nav state
             document.querySelectorAll('.main-nav .nav-link').forEach(n => n.classList.remove('active'));
@@ -238,7 +242,8 @@ function setupEventListeners() {
 }
 
 function resetFilters() {
-    STATE.filters = { mode: 'all', time: 'all', search: '', category: '', company: '', location: '', remote: '', source: '', sort: 'newest' };
+    STATE.filters = { mode: 'all', time: 'all', search: '', category: '', company: '', location: '', remote: '', source: '', sort: 'newest',
+        type: 'internship', type: 'internship' };
     Array.from(els.fModeRadios).find(r => r.value === 'all').checked = true;
     Array.from(els.fTimeRadios).find(r => r.value === 'all').checked = true;
     els.sidebarSearch.value = '';
@@ -271,7 +276,7 @@ function renderLanding() {
     const defaultIcon = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>';
 
     const catCounts = {};
-    STATE.jobs.forEach(j => { if (j.categories) j.categories.forEach(c => catCounts[c] = (catCounts[c]||0)+1); });
+    STATE.jobs.filter(j => j.job_type === 'internship' || !j.job_type).forEach(j => { if (j.categories) j.categories.forEach(c => catCounts[c] = (catCounts[c]||0)+1); });
     const topCats = Object.entries(catCounts).sort((a,b)=>b[1]-a[1]).slice(0, 4);
     
     els.landingCategories.innerHTML = topCats.map(([cat, count]) => `
@@ -285,8 +290,14 @@ function renderLanding() {
     `).join('');
 
     // Fresh
-    const fresh = [...STATE.jobs].sort((a,b) => new Date(b.posted_at||b.fetched_at) - new Date(a.posted_at||a.fetched_at)).slice(0,3);
+    const fresh = STATE.jobs.filter(j => j.job_type === 'internship' || !j.job_type).sort((a,b) => new Date(b.posted_at||b.fetched_at) - new Date(a.posted_at||a.fetched_at)).slice(0, 6);
     els.landingFresh.innerHTML = fresh.map(j => createGridCard(j)).join('');
+    
+    // All
+    if (els.landingAll) {
+        const all = STATE.jobs.filter(j => j.job_type === 'internship' || !j.job_type).sort((a,b) => new Date(b.posted_at||b.fetched_at) - new Date(a.posted_at||a.fetched_at)).slice(0, 15);
+        els.landingAll.innerHTML = all.map(j => createGridCard(j)).join('');
+    }
 }
 
 window.openCategory = function(cat) {
@@ -299,6 +310,7 @@ function applyFiltersAndRender() {
     const now = new Date();
 
     let filtered = STATE.jobs.filter(job => {
+        if (f.type && f.type !== 'all' && job.job_type !== f.type) return false;
         if (f.mode === 'cse' && (!job.categories || job.categories.length === 0)) return false;
         
         if (f.time !== 'all') {
@@ -325,7 +337,7 @@ function applyFiltersAndRender() {
 
     // Update Headers
     const isCse = f.mode === 'cse';
-    els.resultsCountTitle.textContent = `Internships`;
+    els.resultsCountTitle.textContent = f.type === 'job' ? 'Jobs' : 'Internships';
     
     // Build active filters text
     let activeFilters = [];
@@ -388,7 +400,7 @@ function createListCard(job) {
                 <h3 class="lc-title">${job.title}</h3>
                 <div class="lc-company">${job.company}</div>
                 <div class="lc-tags">
-                    ${(job.categories||[]).slice(0,3).map(c=>`<span class="badge badge-blue">${c}</span>`).join('')}
+                    ${(job.categories||[]).slice(0, 6).map(c=>`<span class="badge badge-blue">${c}</span>`).join('')}
                 </div>
                 <div class="lc-meta">
                     <span class="lc-meta-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> ${job.location || 'Anywhere'}</span>

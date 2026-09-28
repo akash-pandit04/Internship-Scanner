@@ -19,6 +19,7 @@ class JobRecord:
     categories: List[str]
     skills: List[str]
     score: int
+    job_type: str
     
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -34,8 +35,8 @@ class JobRecord:
             "posted_at": self.posted_at.isoformat() if self.posted_at else None,
             "fetched_at": self.fetched_at.isoformat() if self.fetched_at else None,
             "categories": self.categories,
-            "skills": self.skills,
-            "score": self.score
+            "score": self.score,
+            "job_type": getattr(self, "job_type", "internship")
         }
 
 def validate_job_schema(job: Dict[str, Any]) -> bool:

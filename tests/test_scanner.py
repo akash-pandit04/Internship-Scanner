@@ -115,5 +115,7 @@ def test_pipeline_integration(monkeypatch, tmp_path):
     data = json.loads(out_file.read_text(encoding="utf-8"))
     jobs = data["jobs"]
     
-    assert len(jobs) == 1
+    assert len(jobs) == 2
+    assert jobs[0]['job_type'] == 'internship'
+    assert jobs[1]['job_type'] == 'job'
     assert jobs[0]["company"] == "Valid Corp"
