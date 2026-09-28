@@ -1,4 +1,4 @@
-# Internship Scanner v1.0.0
+# Internship Scanner v1.1.0
 
 A production-ready, static internship discovery product backed by a telemetry-driven multi-source ingestion pipeline. 
 
@@ -31,6 +31,7 @@ The project successfully proved that a targeted ATS expansion strategy could sus
 - **Phase 7 (Hardening):** 86 CSE-qualified baseline
 - **Phase 8A (Expansion):** 119 CSE-qualified baseline
 - **Phase 8C (Expansion):** 137 CSE-qualified baseline
+- **Phase 10 (v1.1.0):** Integrated Personio XML feeds
 
 ## Local Development
 
@@ -47,4 +48,4 @@ python -m http.server
 ```
 
 ## Release Note
-**v1.0.0** is an immutable baseline representing the completion of the core pipeline and UI product layer.
+**v1.1.0** is an immutable baseline representing the completion of the core pipeline and UI product layer.
