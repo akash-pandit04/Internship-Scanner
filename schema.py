@@ -14,7 +14,7 @@ class JobRecord:
     description: str
     url: str
     source: str
-    posted_at: datetime
+    posted_at: Optional[datetime]
     fetched_at: datetime
     categories: List[str]
     skills: List[str]
@@ -47,8 +47,9 @@ def validate_job_schema(job: Dict[str, Any]) -> bool:
         if k not in job:
             return False
             
-    if not isinstance(job.get('posted_at'), datetime):
-        return False
+    if 'posted_at' in job and job.get('posted_at') is not None:
+        if not isinstance(job.get('posted_at'), datetime):
+            return False
         
     url = job.get('url', '')
     parsed = urlparse(url)

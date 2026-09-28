@@ -64,6 +64,28 @@ class YCombinatorSource(BaseSource):
         except Exception as e:
             logger.error(f"[ycombinator] Failed to fetch {url}: {e}")
             
+    def _parse_relative_date(self, text: str):
+        if not text:
+            return None
+        import re
+        from datetime import timedelta
+        text = text.lower().replace('about ', '').replace('over ', '').replace('almost ', '')
+        match = re.search(r'(\d+)\s+(hour|day|month|year)', text)
+        if not match:
+            return None
+        val = int(match.group(1))
+        unit = match.group(2)
+        now = datetime.now(timezone.utc)
+        if unit == 'hour':
+            return now - timedelta(hours=val)
+        elif unit == 'day':
+            return now - timedelta(days=val)
+        elif unit == 'month':
+            return now - timedelta(days=val*30)
+        elif unit == 'year':
+            return now - timedelta(days=val*365)
+        return None
+
     def normalize(self, raw: dict) -> dict:
         url = raw.get('applyUrl') or raw.get('url', '')
         if url and not url.startswith('http'):
@@ -79,7 +101,7 @@ class YCombinatorSource(BaseSource):
             "url": url,
             "description": raw.get("companyOneLiner", ""),
             "employment_type": raw.get("type", ""),
-            "posted_at": datetime.now(timezone.utc),
+            "posted_at": self._parse_relative_date(raw.get("createdAt")),
         }
 
 SourceRegistry.register("ycombinator", YCombinatorSource)
