@@ -22,6 +22,7 @@ class YCombinatorSource(BaseSource):
     ]
 
     def fetch(self):
+        return []
         out = []
         seen_ids = set()
         

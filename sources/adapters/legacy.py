@@ -106,7 +106,15 @@ class WeWorkRemotelySource(BaseSource):
 
 def _companies(kind):
     try:
-        return json.loads((ROOT / "companies.json").read_text(encoding="utf-8-sig")).get(kind, [])
+        data = json.loads((ROOT / "companies.json").read_text(encoding="utf-8-sig")).get(kind, [])
+        out = []
+        for item in data:
+            if isinstance(item, dict):
+                if item.get("enabled", True):
+                    out.append(item)
+            else:
+                out.append({"id": item, "name": item.replace('-', ' ').title(), "region": "Global", "enabled": True})
+        return out
     except FileNotFoundError:
         return []
 
@@ -116,13 +124,17 @@ class GreenhouseSource(BaseSource):
         max_h = self.config.get("global", {}).get("store_max_age_hours", 24)
         now = datetime.now(timezone.utc)
         out = []
-        for board in _companies("greenhouse"):
+        for board_data in _companies("greenhouse"):
+            board = board_data["id"]
+            self.employer_stats[board] = {"status": "HEALTHY"}
+            board_name = board_data.get("name") or board.replace('-', ' ').title()
             try:
                 data = fetch_json(f"https://boards-api.greenhouse.io/v1/boards/{board}/jobs", headers=HEADERS)
                 jobs = data.get("jobs", [])
             except Exception as e:
                 import logging
                 logging.getLogger(__name__).warning(f"greenhouse/{board}: {e}")
+                self.employer_stats[board] = {"status": "BROKEN"}
                 continue
             fresh = []
             for j in jobs:
@@ -141,12 +153,13 @@ class GreenhouseSource(BaseSource):
                     pass
                 out.append({
                     "title": j.get("title") or "",
-                    "company": board.replace("-", " ").title(),
+                    "company": board_name,
                     "location": (j.get("location") or {}).get("name") or "",
                     "remote": None,
                     "salary": None, "salary_min": None,
                     "url": j.get("absolute_url") or "",
                     "description": desc, "posted_at": upd,
+                    "employer_id": board, "employer_ats": "greenhouse"
                 })
         return out
 
@@ -155,12 +168,16 @@ class LeverSource(BaseSource):
         max_h = self.config.get("global", {}).get("store_max_age_hours", 24)
         now = datetime.now(timezone.utc)
         out = []
-        for c in _companies("lever"):
+        for board_data in _companies("lever"):
+            c = board_data["id"]
+            self.employer_stats[c] = {"status": "HEALTHY"}
+            board_name = board_data.get("name") or c.replace('-', ' ').title()
             try:
                 jobs = fetch_json(f"https://api.lever.co/v0/postings/{c}?mode=json&limit=100", headers=HEADERS)
             except Exception as e:
                 import logging
                 logging.getLogger(__name__).warning(f"lever/{c}: {e}")
+                self.employer_stats[c] = {"status": "BROKEN"}
                 continue
             if not isinstance(jobs, list):
                 continue
@@ -173,13 +190,14 @@ class LeverSource(BaseSource):
                     continue
                 loc = (j.get("categories") or {}).get("location") or ""
                 out.append({
-                    "title": j.get("text") or "", "company": c.replace("-", " ").title(),
+                    "title": j.get("text") or "", "company": board_name,
                     "location": loc,
                     "remote": j.get("workplaceType") == "remote" or "remote" in loc.lower(),
                     "salary": None, "salary_min": None,
                     "url": j.get("hostedUrl") or "",
                     "description": strip_html(j.get("descriptionPlain") or "")[:1200],
                     "posted_at": posted,
+                    "employer_id": c, "employer_ats": "lever"
                 })
         return out
 

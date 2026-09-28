@@ -8,7 +8,9 @@ class SmartRecruitersSource(BaseSource):
     def fetch(self):
         out = []
         
-        for board in _companies("smartrecruiters"):
+        for board_data in _companies("smartrecruiters"):
+            board = board_data["id"]
+            self.employer_stats[board] = {"status": "HEALTHY"}
             try:
                 def fetch_page(token):
                     offset = token or 0
@@ -32,6 +34,7 @@ class SmartRecruitersSource(BaseSource):
             except Exception as e:
                 import logging
                 logging.getLogger(__name__).warning(f"smartrecruiters/{board} failed: {e}")
+                self.employer_stats[board] = {"status": "BROKEN"}
                 continue
                 
             for j in jobs:
@@ -67,6 +70,7 @@ class SmartRecruitersSource(BaseSource):
                     "description": "", # List API does not provide description, rely on title/employment_type
                     "employment_type": emp_type,
                     "posted_at": posted,
+                    "employer_id": board, "employer_ats": "smartrecruiters"
                 })
                 
         return out

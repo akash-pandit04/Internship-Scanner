@@ -9,7 +9,9 @@ class AshbySource(BaseSource):
     def fetch(self):
         out = []
         
-        for board in _companies("ashby"):
+        for board_data in _companies("ashby"):
+            board = board_data["id"]
+            self.employer_stats[board] = {"status": "HEALTHY"}
             try:
                 # We'll use the pagination abstraction just to satisfy Step 5, 
                 # although public Ashby job boards often return all jobs at once.
@@ -31,6 +33,7 @@ class AshbySource(BaseSource):
             except Exception as e:
                 import logging
                 logging.getLogger(__name__).warning(f"ashby/{board} failed: {e}")
+                self.employer_stats[board] = {"status": "BROKEN"}
                 continue
                 
             for j in jobs:
@@ -69,6 +72,7 @@ class AshbySource(BaseSource):
                     "description": strip_html(j.get("descriptionPlain") or j.get("descriptionHtml") or "")[:1200],
                     "employment_type": emp_type,
                     "posted_at": posted,
+                    "employer_id": board, "employer_ats": "ashby"
                 })
                 
         return out

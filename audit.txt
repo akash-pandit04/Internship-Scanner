@@ -1,0 +1,22 @@
+--- ACCEPTED SAMPLE ---
+Multi-modal Sensing AI Research Intern | Full-time | WO: ELIGIBLE_INTERNSHIP | W: ELIGIBLE_INTERNSHIP
+Working Student Data Engineering | Full-time | WO: ELIGIBLE_INTERNSHIP | W: ELIGIBLE_INTERNSHIP
+Paid Internship in AI Application Team (f/m) | Intern | WO: ELIGIBLE_INTERNSHIP | W: ELIGIBLE_INTERNSHIP
+IT Internship (BackEnd, Java) (f/m) | Intern | WO: ELIGIBLE_INTERNSHIP | W: ELIGIBLE_INTERNSHIP
+Płatny Staż – Network Operations Center (k/m) | Intern | WO: ELIGIBLE_INTERNSHIP | W: ELIGIBLE_INTERNSHIP
+Maintenance & TPM Support Intern  | Full-time | WO: ELIGIBLE_INTERNSHIP | W: ELIGIBLE_INTERNSHIP
+Internship Machine Learning for Predictive Reliability Analytics - Heat Pumps | Full-time | WO: ELIGIBLE_INTERNSHIP | W: ELIGIBLE_INTERNSHIP
+Extracurricular Internship: Production System & Data Analytics (f/m/div.) | Full-time | WO: ELIGIBLE_INTERNSHIP | W: ELIGIBLE_INTERNSHIP
+【MA】Internship Regional Product Manager in Aftermarket Asia Pacific South | Intern | WO: ELIGIBLE_INTERNSHIP | W: ELIGIBLE_INTERNSHIP
+Intern, AI Research  | Intern | WO: ELIGIBLE_INTERNSHIP | W: ELIGIBLE_INTERNSHIP
+--- REJECTED SAMPLE ---
+Technischer Systemberater für die Buderus Niederlassung Hamburg (w/m/div.) | Full-time | WO: NON_INTERNSHIP | W: NON_INTERNSHIP
+MFP TEAM LEADER | Full-time | WO: NON_INTERNSHIP | W: NON_INTERNSHIP
+CONSULTOR ASSISTENTE DE CUSTOMER EXPERIENCE - FOCO EM ENGENHARIA (35274-35275-35276) | Full-time | WO: NON_INTERNSHIP | W: NON_INTERNSHIP
+APRENDIZ ADMINISTRATIVO (36070) | Full-time | WO: NON_INTERNSHIP | W: NON_INTERNSHIP
+Design Engineer | Full-time | WO: NON_INTERNSHIP | W: NON_INTERNSHIP
+Técnico de Mantenimiento de Equipo | Full-time | WO: NON_INTERNSHIP | W: NON_INTERNSHIP
+Hardware Engineer | Full-time | WO: NON_INTERNSHIP | W: NON_INTERNSHIP
+ Chief Expert Robotics | Full-time | WO: NON_INTERNSHIP | W: NON_INTERNSHIP
+Tecnico de Mantenimiento de Equipo | Full-time | WO: NON_INTERNSHIP | W: NON_INTERNSHIP
+Chief Expert Robotics | Full-time | WO: NON_INTERNSHIP | W: NON_INTERNSHIP

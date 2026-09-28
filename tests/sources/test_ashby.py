@@ -34,7 +34,7 @@ def test_ashby_successful_fetch(monkeypatch):
         return {"jobs": []}
         
     monkeypatch.setattr(ashby_module, "fetch_json", mock_get)
-    monkeypatch.setattr(ashby_module, "_companies", lambda k: ["notion", "empty_board"])
+    monkeypatch.setattr(ashby_module, "_companies", lambda k: [{"id":"notion"}, {"id":"empty_board"}])
     
     adapter = AshbySource({"global": {"store_max_age_hours": 999999}})
     jobs = adapter.fetch()
@@ -77,7 +77,7 @@ def test_ashby_malformed_and_stale(monkeypatch):
             ]
         }
     monkeypatch.setattr(ashby_module, "fetch_json", mock_get)
-    monkeypatch.setattr(ashby_module, "_companies", lambda k: ["test"])
+    monkeypatch.setattr(ashby_module, "_companies", lambda k: [{"id":"test"}])
     
     adapter = AshbySource({"global": {"store_max_age_hours": 720}})
     jobs = adapter.fetch()
@@ -93,7 +93,7 @@ def test_ashby_http_failure_isolation(monkeypatch):
         return {"jobs": [{"title": "Good Intern", "publishedAt": "2030-01-01T00:00:00Z"}]}
         
     monkeypatch.setattr(ashby_module, "fetch_json", mock_get)
-    monkeypatch.setattr(ashby_module, "_companies", lambda k: ["bad_board", "good_board"])
+    monkeypatch.setattr(ashby_module, "_companies", lambda k: [{"id":"bad_board"}, {"id":"good_board"}])
     
     adapter = AshbySource({"global": {"store_max_age_hours": 999999}})
     jobs = adapter.fetch()
@@ -107,7 +107,7 @@ def test_ashby_empty_response(monkeypatch):
         return {} # No 'jobs' key
         
     monkeypatch.setattr(ashby_module, "fetch_json", mock_get)
-    monkeypatch.setattr(ashby_module, "_companies", lambda k: ["test"])
+    monkeypatch.setattr(ashby_module, "_companies", lambda k: [{"id":"test"}])
     
     adapter = AshbySource({"global": {"store_max_age_hours": 999999}})
     jobs = adapter.fetch()

@@ -19,7 +19,7 @@ def test_greenhouse_partial_failure(monkeypatch, tmp_path):
     
     def mock_companies(kind):
         if kind == "greenhouse":
-            return ["good_company", "fail_company"]
+            return [{"id": "good_company"}, {"id": "fail_company"}]
         return []
     monkeypatch.setattr(l_sources, "_companies", mock_companies)
     

@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#ffffff">
+<meta name="theme-color" content="#2563eb">
+<meta name="description" content="Find verified Computer Science and Engineering internships.">
 <title>Internship Scanner</title>
-<link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -14,26 +14,47 @@
   <div class="container header-container">
     <div class="brand-group">
       <div class="brand">Internship Scanner</div>
-      <div class="brand-tagline">Find real internships from multiple sources.</div>
+      <div class="brand-tagline">Curated, fresh CSE internships from verified tech employers.</div>
     </div>
     <div class="meta-info">
-      <span id="update-status">Loading dataset...</span>
+      <span id="update-status" aria-live="polite">Loading dataset...</span>
     </div>
   </div>
 </header>
 
 <main>
   
-  <section class="hero" aria-labelledby="hero-title">
-    <div class="container hero-container">
-      <h1 id="hero-title" class="hero-title">Find your next internship</h1>
-      <p class="hero-subtitle">Find internships from multiple public job sources.</p>
-      
+  <section class="dashboard container" aria-label="Dataset Overview">
+    <div class="stat-card">
+      <h3 class="stat-title">Total Internships</h3>
+      <div id="stat-total" class="stat-value">--</div>
+      <div class="stat-desc">across all categories</div>
+    </div>
+    <div class="stat-card highlight">
+      <h3 class="stat-title">CSE Qualified</h3>
+      <div id="stat-cse" class="stat-value">--</div>
+      <div class="stat-desc">matching technical taxonomy</div>
+    </div>
+    <div class="stat-card">
+      <h3 class="stat-title">Employers</h3>
+      <div id="stat-companies" class="stat-value">--</div>
+      <div class="stat-desc">actively hiring now</div>
+    </div>
+    <div class="stat-card">
+      <h3 class="stat-title">Freshness</h3>
+      <div id="stat-freshness" class="stat-value">24h</div>
+      <div class="stat-desc">maximum posting age</div>
+    </div>
+  </section>
+
+  <section class="search-section" aria-labelledby="search-heading">
+    <div class="container">
+      <h2 id="search-heading" class="sr-only">Search</h2>
       <div class="search-bar">
         <label for="f-search" class="sr-only">Search internships</label>
         <div class="search-input-wrapper">
           <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-          <input id="f-search" type="search" placeholder="Search internships by title, company, or skill...">
+          <input id="f-search" type="search" placeholder="Search title, company, skills, or location...">
         </div>
       </div>
     </div>
@@ -42,16 +63,31 @@
   <section class="controls container" aria-label="Filters">
     <div class="filters">
       <div class="filter-group">
-        <label for="f-cat">Category</label>
+        <label for="f-cse-only">View Mode</label>
+        <select id="f-cse-only">
+          <option value="cse" selected>CSE Qualified Only</option>
+          <option value="all">All Internships</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="f-cat">CSE Category</label>
         <select id="f-cat">
           <option value="">All Categories</option>
         </select>
       </div>
       
       <div class="filter-group">
-        <label for="f-remote">Remote Status</label>
+        <label for="f-company">Company</label>
+        <select id="f-company">
+          <option value="">All Companies</option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label for="f-remote">Location</label>
         <select id="f-remote">
-          <option value="all">Any Status</option>
+          <option value="all">Any Location</option>
           <option value="remote">Remote Only</option>
         </select>
       </div>
@@ -59,14 +95,14 @@
       <div class="filter-group">
         <label for="f-sort">Sort By</label>
         <select id="f-sort">
-          <option value="newest">Newest</option>
-          <option value="relevance" selected>Highest Relevance</option>
+          <option value="newest" selected>Newest First</option>
+          <option value="relevance">Highest Relevance</option>
           <option value="company">Company A-Z</option>
         </select>
       </div>
       
       <div class="filter-actions">
-        <button id="btn-clear-filters" class="btn-secondary">Clear Filters</button>
+        <button id="btn-clear-filters" class="btn-secondary" aria-label="Clear all filters">Clear Filters</button>
       </div>
     </div>
   </section>
@@ -74,7 +110,7 @@
   <section class="results container" aria-label="Internship listings">
     <div class="results-header">
       <h2 class="results-title">Available Internships</h2>
-      <span id="results-count" class="badge">0</span>
+      <span id="results-count" class="badge" aria-live="polite">0</span>
     </div>
 
     <div id="results-container" class="cards-grid">
@@ -89,7 +125,7 @@
     
     <div id="error-state" class="error-state" hidden>
       <h2>Unable to load internship dataset.</h2>
-      <p>The dataset might be unavailable or regenerating.</p>
+      <p>The dataset might be unavailable or generating. Please try again later.</p>
     </div>
   </section>
   

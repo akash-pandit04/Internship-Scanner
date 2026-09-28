@@ -11,6 +11,7 @@ class BaseSource(ABC):
         # Standard configs
         self.enabled = self.config.get("enabled", True)
         self.max_pages = self.config.get("max_pages", 5)
+        self.employer_stats = {}
 
     @abstractmethod
     def fetch(self) -> List[Dict[str, Any]]:
