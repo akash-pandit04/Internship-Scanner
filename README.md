@@ -1,15 +1,50 @@
-# Internship Scanner
+# Internship Scanner v1.0.0
 
-A comprehensive data aggregation and web automation platform designed to find and auto-apply to Computer Science Engineering (CSE) Internships globally.
+A production-ready, static internship discovery product backed by a telemetry-driven multi-source ingestion pipeline. 
 
-## The Architecture (Enterprise Architecture)
-This project is built using enterprise-level architecture, specifically aligning with modern software development and testing requirements:
+This platform continuously acquires, filters, classifies, deduplicates, measures, and presents real internship data with strict deterministic validation. It focuses specifically on Computer Science and Engineering (CSE) roles globally.
 
-*   **Python (OOP):** Core engine handles global data aggregation, API routing, and Playwright-based browser automation for the 'Auto-Apply' tier.
-*   **Software Testing (PyTest):** Comprehensive unit and integration test suite ensures scraper reliability and form-injection accuracy.
-*   **CI/CD (GitHub Actions):** Automated pipelines run the PyTest suite and deploy the live dashboard automatically.
-*   **MATLAB Data Analytics:** A dedicated analytics engine (src/analytics.m) processes the aggregated job data to run statistical models and predict in-demand skills and hiring trends in the engineering sector.
+## The Pipeline Architecture
+
+The project has evolved into a highly coherent, resilient data pipeline:
+
+1. **Public ATS Discovery** — Fetches unstructured raw job data from public sources and a curated ATS registry (`companies.json`).
+2. **Normalization** — Maps disparate ATS schema dialects (Greenhouse, Lever, Ashby, SmartRecruiters, YCombinator) into a unified `JobRecord`.
+3. **24-Hour Freshness** — Strictly expires listings older than 24 hours to prevent stale data buildup.
+4. **Eligibility Validation** — Deterministic regex pattern-matching eliminates senior, non-intern, uncompensated, or unrelated roles.
+5. **CSE Taxonomy** — Multi-pass classification tagging roles into 28 canonical Computer Science sub-disciplines (e.g., *AI/ML*, *Cloud/DevOps*, *Data Engineering*).
+6. **Deduplication** — Semantic and exact URL hashing prevents pipeline flooding.
+7. **Telemetry** — Observational metrics (`registry_metrics.json`) track source health independently from CSE yield.
+8. **Static Frontend** — A high-performance, client-side dataset-aware UI (`docs/`) visualizing the curated baseline.
 
 ## Features
-*   **Free Tier:** Global aggregation of Software Engineering and CSE internship postings.
-*   **Premium Tier:** One-click Playwright automation to inject user profiles into standard ATS forms (Greenhouse/Lever).
+
+- **Strict Data Integrity:** Only fresh (<24h), eligible, and deduped records survive the ingestion funnel. 
+- **Dataset-Aware UI:** The frontend natively calculates analytics (Total Internships, CSE Qualified, Locations, Companies) dynamically from the payload without backend database dependencies.
+- **Provenance:** Direct application URLs and ATS source origins are securely passed through without mutation.
+- **Robust Test Suite:** 29 independent isolation/regression tests (`pytest`) covering adapter logic, HTTP failure isolation, and taxonomy precision.
+
+## Development Progression
+
+The project successfully proved that a targeted ATS expansion strategy could sustainably grow the dataset while retaining strict quality gates:
+
+- **Phase 7 (Hardening):** 86 CSE-qualified baseline
+- **Phase 8A (Expansion):** 119 CSE-qualified baseline
+- **Phase 8C (Expansion):** 137 CSE-qualified baseline
+
+## Local Development
+
+```bash
+# Run the test suite
+python -m pytest
+
+# Run the ingestion pipeline
+python scan.py
+
+# Serve the frontend locally
+cd docs
+python -m http.server
+```
+
+## Release Note
+**v1.0.0** is an immutable baseline representing the completion of the core pipeline and UI product layer.
