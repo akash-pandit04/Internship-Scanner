@@ -208,5 +208,36 @@
             "id": "screeningeagle",
             "name": "Screening Eagle"
         }
+    ],
+    "bamboohr": [
+        {
+            "id": "lbmx",
+            "name": "LBMX"
+        }
+    ],
+    "recruitee": [
+        {
+            "id": "bunq",
+            "name": "Bunq"
+        }
+    ],
+    "teamtailor": [
+        {
+            "id": "career.teamtailor.com",
+            "name": "Teamtailor"
+        }
+    ],
+    "workday": [
+        {
+            "host": "wd5.myworkday.com",
+            "tenant": "example",
+            "report_name": "test"
+        }
+    ],
+    "jobvite": [
+        {
+            "company_id": "qY59Vfwa",
+            "name": "Universal Music"
+        }
     ]
 }
