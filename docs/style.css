@@ -209,7 +209,7 @@ button, input, select { font-family: inherit; }
 }
 .nav-dropdown {
     position: relative;
-    display: inline-block;
+    display: flex; align-items: center; height: 100%;
 }
 .nav-dropdown-content {
     display: none;
