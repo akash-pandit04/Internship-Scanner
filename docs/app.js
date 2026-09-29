@@ -453,9 +453,11 @@ function createGridCard(job) {
             </div>
             <div class="card-meta">
                 <div class="card-meta-row"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> ${job.location || 'Anywhere'}</div>
-                <div class="card-meta-row"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> Updated ${timeAgo}</div>
-                <div>Source: ${job.source}</div>
-            </div>
+                <div class="card-meta-row"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> Updated ${timeAgo}</div>                  <div>Source: ${job.source}</div>
+              </div>
+              <div style="margin-top: 16px;">
+                  <button class="btn btn-primary" style="width: 100%; justify-content: center;" onclick="event.stopPropagation(); window.open('${job.url}', '_blank')">Apply <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg></button>
+              </div>
         </div>
     `;
 }
