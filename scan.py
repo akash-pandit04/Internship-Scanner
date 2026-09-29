@@ -427,7 +427,7 @@ class InternshipScannerPipeline:
 
         
         # Save output
-                companies_path = self.root_dir / "companies.json"
+        companies_path = self.root / "companies.json"
         total_endpoints = 0
         if companies_path.exists():
             import json

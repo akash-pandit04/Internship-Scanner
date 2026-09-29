@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from sources.base import BaseSource
 from sources.registry import SourceRegistry
 from sources.http_client import fetch_json
-from sources.utils import strip_html
+from sources.utils import strip_html, html_to_markdown
 from sources.adapters.legacy import _companies, HEADERS
 
 class AshbySource(BaseSource):
@@ -69,7 +69,7 @@ class AshbySource(BaseSource):
                     "salary": None,
                     "salary_min": None,
                     "url": j.get("jobUrl") or "",
-                    "description": strip_html(j.get("descriptionPlain") or j.get("descriptionHtml") or "")[:1200],
+                    "description": html_to_markdown(j.get("descriptionPlain") or j.get("descriptionHtml") or ""),
                     "employment_type": emp_type,
                     "posted_at": posted,
                     "employer_id": board, "employer_ats": "ashby"

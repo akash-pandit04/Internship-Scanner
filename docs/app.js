@@ -557,7 +557,13 @@ window.openDetail = function(id) {
         `;
     }
     if (!desc.includes('<')) desc = `<div style="white-space: pre-wrap; font-family: inherit;">${desc.trim()}</div>`;
-    els.detailDesc.innerHTML = desc;
+    
+    if (typeof marked !== 'undefined' && typeof DOMPurify !== 'undefined') {
+        els.detailDesc.innerHTML = DOMPurify.sanitize(marked.parse(desc));
+    } else {
+        els.detailDesc.innerHTML = desc;
+    }
+
     
     const tags = [...(job.categories||[]), ...(job.skills||[])];
     els.detailSkills.innerHTML = tags.map(t=>`<span class="badge badge-blue">${t}</span>`).join('');

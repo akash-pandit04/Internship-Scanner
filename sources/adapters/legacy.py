@@ -7,7 +7,7 @@ import xml.etree.ElementTree as ET
 from sources.base import BaseSource
 from sources.registry import SourceRegistry
 from sources.http_client import fetch_json, fetch_text
-from sources.utils import strip_html, format_salary
+from sources.utils import strip_html, html_to_markdown, format_salary
 
 HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"}
 ROOT = Path(__file__).resolve().parent.parent.parent
@@ -31,7 +31,7 @@ class RemoteOKSource(BaseSource):
                 "salary": format_salary(smin, j.get("salary_max")),
                 "salary_min": int(smin) if smin else None,
                 "url": j.get("url") or "",
-                "description": strip_html(j.get("description") or "")[:1200],
+                "description": html_to_markdown(j.get("description") or ""),
                 "posted_at": posted,
             })
         return out
@@ -52,7 +52,7 @@ class RemotiveSource(BaseSource):
                 "location": j.get("candidate_required_location") or "Remote",
                 "remote": True, "salary": j.get("salary") or None, "salary_min": None,
                 "url": j.get("url") or "",
-                "description": strip_html(j.get("description") or "")[:1200],
+                "description": html_to_markdown(j.get("description") or ""),
                 "posted_at": posted,
             })
         return out
@@ -75,7 +75,7 @@ class JobicySource(BaseSource):
                 "salary": format_salary(smin, j.get("annualSalaryMax")),
                 "salary_min": int(smin) if smin else None,
                 "url": j.get("url") or "",
-                "description": strip_html(j.get("jobExcerpt") or j.get("jobDescription") or "")[:1200],
+                "description": html_to_markdown(j.get("jobExcerpt") or j.get("jobDescription") or ""),
                 "posted_at": posted,
             })
         return out
@@ -99,7 +99,7 @@ class WeWorkRemotelySource(BaseSource):
                 "location": (item.findtext("region") or "Remote").strip(),
                 "remote": True, "salary": None, "salary_min": None,
                 "url": (item.findtext("link") or "").strip(),
-                "description": strip_html(item.findtext("description") or "")[:1200],
+                "description": html_to_markdown(item.findtext("description") or ""),
                 "posted_at": posted,
             })
         return out
@@ -148,7 +148,7 @@ class GreenhouseSource(BaseSource):
                 desc = ""
                 try:
                     detail = fetch_json(f"https://boards-api.greenhouse.io/v1/boards/{board}/jobs/{j['id']}", headers=HEADERS)
-                    desc = strip_html(detail.get("content") or "")[:1200]
+                    desc = html_to_markdown(detail.get("content") or "")
                 except Exception:
                     pass
                 out.append({
@@ -195,7 +195,7 @@ class LeverSource(BaseSource):
                     "remote": j.get("workplaceType") == "remote" or "remote" in loc.lower(),
                     "salary": None, "salary_min": None,
                     "url": j.get("hostedUrl") or "",
-                    "description": strip_html(j.get("descriptionPlain") or "")[:1200],
+                    "description": html_to_markdown(j.get("descriptionPlain") or ""),
                     "posted_at": posted,
                     "employer_id": c, "employer_ats": "lever"
                 })
@@ -221,7 +221,7 @@ class ArbeitnowSource(BaseSource):
                 "salary": None, 
                 "salary_min": None,
                 "url": j.get("url") or "",
-                "description": strip_html(j.get("description") or "")[:1200],
+                "description": html_to_markdown(j.get("description") or ""),
                 "employment_type": emp_type,
                 "posted_at": posted,
             })
