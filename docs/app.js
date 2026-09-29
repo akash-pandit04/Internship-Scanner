@@ -132,7 +132,7 @@ async function loadData() {
 function processMetadata() {
     const internshipsOnly = STATE.jobs.filter(j => j.job_type === 'internship' || !j.job_type);
     let cseCount = 0;
-    internshipsOnly.forEach(job => {
+    STATE.jobs.forEach(job => {
         if (job.categories && job.categories.length > 0) cseCount++;
     });
     STATE.jobs.forEach(job => {
@@ -141,7 +141,7 @@ function processMetadata() {
         if (job.source) STATE.sources.add(job.source);
     });
 
-    els.statTotal.textContent = internshipsOnly.length;
+    els.statTotal.textContent = STATE.jobs.length;
     els.statCse.textContent = cseCount;
     els.statEmployers.textContent = STATE.companies.size;
     els.statSources.textContent = STATE.sources.size;
