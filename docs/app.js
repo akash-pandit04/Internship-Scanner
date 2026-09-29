@@ -515,21 +515,6 @@ window.openDetail = function(id) {
     document.title = `${job.title} at ${job.company} | Internship Scanner`;
     const canUrl = window.location.origin + window.location.pathname + hashUrl;
     if(document.getElementById('canonical-url')) document.getElementById('canonical-url').href = canUrl;
-
-    
-    // SEO Update
-    const slug = generateSlug(job.title, job.company);
-    const hashUrl = `#!/job/${slug}/${id}`;
-    if (window.location.hash !== hashUrl) {
-        history.pushState({ id: id }, '', hashUrl);
-    }
-    document.title = `${job.title} at ${job.company} | Internship Scanner`;
-    const canUrl = window.location.origin + window.location.pathname + hashUrl;
-    if(document.getElementById('canonical-url')) document.getElementById('canonical-url').href = canUrl;
-
-    const job = STATE.jobs.find(j => String(j.id) === id);
-    if (!job) return;
-    STATE.selectedJobId = id;
     
     els.breadcrumbTitle.textContent = job.title;
     els.detailLogo.src = getLogoUrl(job.company);
