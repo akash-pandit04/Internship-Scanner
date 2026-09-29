@@ -431,6 +431,40 @@ class InternshipScannerPipeline:
         self.out_file.parent.mkdir(parents=True, exist_ok=True)
         self.out_file.write_text(json.dumps(out_data, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
         logging.info(f"Saved to {self.out_file}")
+        # Generate Sitemap
+        sitemap_path = self.out_file.parent.parent / "sitemap.xml"
+        robots_path = self.out_file.parent.parent / "robots.txt"
+        base_url = "https://internshipscanner.com" # Placeholder base URL
+        
+        url_nodes = []
+        import re
+        for j in processed_jobs.values():
+            slug = re.sub(r'[^a-z0-9]+', '-', f"{j.title}-{j.company}".lower()).strip('-')
+            url = f"{base_url}/#!/job/{slug}/{j.id}"
+            url_nodes.append(f"""  <url>
+    <loc>{url}</loc>
+    <lastmod>{now.strftime('%Y-%m-%d')}</lastmod>
+    <changefreq>daily</changefreq>
+  </url>""")
+        
+        sitemap_content = f"""<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>{base_url}/</loc>
+    <changefreq>hourly</changefreq>
+    <priority>1.0</priority>
+  </url>
+{"".join(url_nodes)}
+</urlset>"""
+        
+        sitemap_path.write_text(sitemap_content, encoding="utf-8")
+        
+        robots_content = f"""User-agent: *
+Allow: /
+
+Sitemap: {base_url}/sitemap.xml"""
+        robots_path.write_text(robots_content, encoding="utf-8")
+
         
 if __name__ == "__main__":
     pipeline = InternshipScannerPipeline(Path(__file__).resolve().parent)

@@ -34,6 +34,10 @@ window.STATE = {
     selectedJobId: null
 };
 
+function generateSlug(title, company) {
+    return `${title}-${company}`.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+}
+
 const els = {
     views: document.querySelectorAll('.view'),
     navLinks: document.querySelectorAll('.nav-link, .nav-brand, .view-all-link, [data-navigate]'),
@@ -170,6 +174,13 @@ function switchView(viewId) {
         else v.classList.remove('active-view');
     });
     window.scrollTo(0, 0);
+    
+    if (viewId === 'view-landing') {
+        if (window.location.hash.startsWith('#!/job/')) {
+            history.pushState(null, '', window.location.pathname);
+        }
+        document.title = 'Internship Scanner | Top Tech Roles';
+    }
 }
 
 function setupEventListeners() {
@@ -491,6 +502,31 @@ function createListCard(job) {
 }
 
 window.openDetail = function(id) {
+    const job = STATE.jobs.find(j => String(j.id) === id);
+    if (!job) return;
+    STATE.selectedJobId = id;
+    
+    // SEO Update
+    const slug = generateSlug(job.title, job.company);
+    const hashUrl = `#!/job/${slug}/${id}`;
+    if (window.location.hash !== hashUrl) {
+        history.pushState({ id: id }, '', hashUrl);
+    }
+    document.title = `${job.title} at ${job.company} | Internship Scanner`;
+    const canUrl = window.location.origin + window.location.pathname + hashUrl;
+    if(document.getElementById('canonical-url')) document.getElementById('canonical-url').href = canUrl;
+
+    
+    // SEO Update
+    const slug = generateSlug(job.title, job.company);
+    const hashUrl = `#!/job/${slug}/${id}`;
+    if (window.location.hash !== hashUrl) {
+        history.pushState({ id: id }, '', hashUrl);
+    }
+    document.title = `${job.title} at ${job.company} | Internship Scanner`;
+    const canUrl = window.location.origin + window.location.pathname + hashUrl;
+    if(document.getElementById('canonical-url')) document.getElementById('canonical-url').href = canUrl;
+
     const job = STATE.jobs.find(j => String(j.id) === id);
     if (!job) return;
     STATE.selectedJobId = id;
