@@ -8,6 +8,8 @@ from markdownify import markdownify
 
 def html_to_markdown(s: str) -> str:
     s = s or ""
+    import html
+    s = html.unescape(s)
     try:
         # Convert HTML to markdown, ignoring images and links for clean text
         md = markdownify(s, heading_style="ATX", strip=['img'])
