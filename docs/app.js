@@ -266,10 +266,17 @@ function populateFilterDropdowns() {
     STATE.jobs.forEach(j => { if (j.location) locs.add(j.location); });
     Array.from(locs).sort().forEach(l => els.fLocation.add(new Option(l, l)));
 
-    const navCatDropdown = document.getElementById('nav-categories-dropdown');
-    if (navCatDropdown) {
-        navCatDropdown.innerHTML = Array.from(STATE.categories).sort().map(c => 
+
+    const navRolesDropdown = document.getElementById('nav-roles-dropdown');
+    if (navRolesDropdown) {
+        navRolesDropdown.innerHTML = Array.from(STATE.categories).sort().map(c => 
             `<a href="#" onclick="openCategory('${c.replace(/'/g,"\\'")}')">${c}</a>`
+        ).join('');
+    }
+    const navCompaniesDropdown = document.getElementById('nav-companies-dropdown');
+    if (navCompaniesDropdown) {
+        navCompaniesDropdown.innerHTML = Array.from(STATE.companies).sort().map(c => 
+            `<a href="#" onclick="openCompany('${c.replace(/'/g,"\\'")}')">${c}</a>`
         ).join('');
     }
 }
@@ -309,6 +316,9 @@ function renderLanding() {
 
 window.openCategory = function(cat) {
     resetFilters(); STATE.filters.category = cat; els.fCategory.value = cat; switchView('view-listing'); applyFiltersAndRender();
+};
+window.openCompany = function(comp) {
+    resetFilters(); STATE.filters.company = comp; els.fCompany.value = comp; switchView('view-listing'); applyFiltersAndRender();
 };
 
 function applyFiltersAndRender() {
