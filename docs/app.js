@@ -559,8 +559,7 @@ window.openDetail = function(id) {
     
     
     if (typeof marked !== 'undefined' && typeof DOMPurify !== 'undefined') {
-        let safeDesc = '
-' + desc.trim();
+        let safeDesc = '\n' + desc.trim();
         els.detailDesc.innerHTML = DOMPurify.sanitize(marked.parse(safeDesc));
     } else {
         if (!desc.includes('<')) desc = `<div style="white-space: pre-wrap; font-family: inherit;">${desc.trim()}</div>`;
