@@ -306,19 +306,10 @@ function populateFilterDropdowns() {
     }
     const navSourcesDropdown = document.getElementById('nav-sources-dropdown');
     if (navSourcesDropdown) {
-        const activeSources = Array.from(STATE.sources).sort();
-        const inactiveSources = (STATE.all_sources || []).filter(s => !STATE.sources.has(s)).sort();
-        
-        let html = activeSources.map(s => 
+        const allSources = Array.from(new Set([...Array.from(STATE.sources), ...(STATE.all_sources || [])])).sort();
+        navSourcesDropdown.innerHTML = allSources.map(s => 
             `<a href="#" onclick="openSource('${s.replace(/'/g,"\\'")}')">${s}</a>`
         ).join('');
-        
-        if (inactiveSources.length > 0) {
-            html += inactiveSources.map(s => 
-                `<a href="#" onclick="openSource('${s.replace(/'/g,"\\'")}')" style="color: #9CA3AF;">${s}</a>`
-            ).join('');
-        }
-        navSourcesDropdown.innerHTML = html;
     }
 }
 
