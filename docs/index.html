@@ -47,6 +47,17 @@
                         <!-- Populated dynamically -->
                     </div>
                 </div>
+                <div class="nav-dropdown">
+                    <a href="#" class="nav-link">Scan <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg></a>
+                    <div class="nav-dropdown-content" id="nav-scan-dropdown">
+                        <a href="#" onclick="openScan('24')">Last 24 Hours</a>
+                        <a href="#" onclick="openScan('72')">Last 3 Days</a>
+                        <a href="#" onclick="openScan('168')">Last 7 Days</a>
+                        <a href="#" onclick="openScan('336')">Last 14 Days</a>
+                        <a href="#" onclick="openScan('720')">Last 30 Days</a>
+                        <a href="#" onclick="openScan('all')">All Time</a>
+                    </div>
+                </div>
                 <a href="#" class="nav-link" data-navigate="listing" data-filter="remote">Remote</a>
                 <a href="#about" class="nav-link" data-navigate="landing">About</a>
             </div>
@@ -234,12 +245,17 @@
                                     <span class="radio-text">Past 3 days</span>
                                 </label>
                                 <label class="radio-label">
-                                    <input type="radio" name="f_time" value="168">
-                                    <span class="custom-radio"></span>
-                                    <span class="radio-text">Past 7 days</span>
-                                </label>
-                                <label class="radio-label">
-                                    <input type="radio" name="f_time" value="720">
+                                      <input type="radio" name="f_time" value="168">
+                                      <span class="custom-radio"></span>
+                                      <span class="radio-text">Past 7 days</span>
+                                  </label>
+                                  <label class="radio-label">
+                                      <input type="radio" name="f_time" value="336">
+                                      <span class="custom-radio"></span>
+                                      <span class="radio-text">Past 14 days</span>
+                                  </label>
+                                  <label class="radio-label">
+                                      <input type="radio" name="f_time" value="720">
                                     <span class="custom-radio"></span>
                                     <span class="radio-text">Past 30 days</span>
                                 </label>

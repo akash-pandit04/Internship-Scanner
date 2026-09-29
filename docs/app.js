@@ -358,6 +358,14 @@ window.openLocation = function(loc) {
 window.openSource = function(src) {
     resetFilters(); STATE.filters.source = src; els.fSource.value = src; switchView('view-listing'); applyFiltersAndRender();
 };
+window.openScan = function(hours) {
+    resetFilters(); 
+    STATE.filters.time = hours;
+    const radio = Array.from(els.fTimeRadios).find(r => r.value === hours);
+    if (radio) radio.checked = true;
+    switchView('view-listing'); 
+    applyFiltersAndRender();
+};
 
 function applyFiltersAndRender() {
     const f = STATE.filters;
