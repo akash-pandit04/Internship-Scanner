@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 class RateLimitError(Exception):
     pass
 
-def fetch_json(url: str, headers: Dict[str, str] = None, max_retries: int = 3, timeout: int = 15) -> Any:
+def fetch_json(url: str, headers: Dict[str, str] = None, max_retries: int = 0, timeout: int = 5) -> Any:
     """
     HTTP GET requesting JSON with exponential backoff for 429 and 5xx errors.
     """
@@ -38,7 +38,7 @@ def fetch_json(url: str, headers: Dict[str, str] = None, max_retries: int = 3, t
     
     raise Exception(f"Failed to fetch {url} after {max_retries} retries")
 
-def fetch_text(url: str, headers: Dict[str, str] = None, max_retries: int = 3, timeout: int = 15) -> str:
+def fetch_text(url: str, headers: Dict[str, str] = None, max_retries: int = 0, timeout: int = 5) -> str:
     """
     HTTP GET requesting text (e.g., XML/RSS) with exponential backoff.
     """
