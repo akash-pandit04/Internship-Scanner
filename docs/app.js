@@ -314,7 +314,6 @@ function populateFilterDropdowns() {
         ).join('');
         
         if (inactiveSources.length > 0) {
-            html += '<div style="padding: 8px 16px; font-size: 0.75rem; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.5px; border-top: 1px solid #E5E7EB; margin-top: 4px; padding-top: 12px;">No Active Openings</div>';
             html += inactiveSources.map(s => 
                 `<a href="#" onclick="openSource('${s.replace(/'/g,"\\'")}')" style="color: #9CA3AF;">${s}</a>`
             ).join('');
