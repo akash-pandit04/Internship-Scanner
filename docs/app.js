@@ -279,6 +279,18 @@ function populateFilterDropdowns() {
             `<a href="#" onclick="openCompany('${c.replace(/'/g,"\\'")}')">${c}</a>`
         ).join('');
     }
+    const navLocationDropdown = document.getElementById('nav-location-dropdown');
+    if (navLocationDropdown) {
+        navLocationDropdown.innerHTML = Array.from(locs).sort().map(l => 
+            `<a href="#" onclick="openLocation('${l.replace(/'/g,"\\'")}')">${l}</a>`
+        ).join('');
+    }
+    const navSourcesDropdown = document.getElementById('nav-sources-dropdown');
+    if (navSourcesDropdown) {
+        navSourcesDropdown.innerHTML = Array.from(STATE.sources).sort().map(s => 
+            `<a href="#" onclick="openSource('${s.replace(/'/g,"\\'")}')">${s}</a>`
+        ).join('');
+    }
 }
 
 function renderLanding() {
@@ -319,6 +331,12 @@ window.openCategory = function(cat) {
 };
 window.openCompany = function(comp) {
     resetFilters(); STATE.filters.company = comp; els.fCompany.value = comp; switchView('view-listing'); applyFiltersAndRender();
+};
+window.openLocation = function(loc) {
+    resetFilters(); STATE.filters.location = loc; els.fLocation.value = loc; switchView('view-listing'); applyFiltersAndRender();
+};
+window.openSource = function(src) {
+    resetFilters(); STATE.filters.source = src; els.fSource.value = src; switchView('view-listing'); applyFiltersAndRender();
 };
 
 function applyFiltersAndRender() {
