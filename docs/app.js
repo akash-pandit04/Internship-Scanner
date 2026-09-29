@@ -325,7 +325,7 @@ function renderLanding() {
     STATE.jobs.filter(j => j.job_type === 'internship' || !j.job_type).forEach(j => { if (j.categories) j.categories.forEach(c => catCounts[c] = (catCounts[c]||0)+1); });
     const topCats = Object.entries(catCounts).sort((a,b)=>b[1]-a[1]).slice(0, 4);
     
-    els.landingCategories.innerHTML = topCats.map(([cat, count]) => `
+    if(els.landingCategories) els.landingCategories.innerHTML = topCats.map(([cat, count]) => `
         <div class="cat-btn" onclick="openCategory('${cat.replace(/'/g,"\\'")}')">
             <div class="cat-btn-icon">${catIcons[cat] || defaultIcon}</div>
             <div>
