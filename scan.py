@@ -173,13 +173,12 @@ class InternshipScannerPipeline:
         """Deterministic deduplication fingerprint."""
         company = str(job.get("company", "")).strip().lower()
         title = str(job.get("title", "")).strip().lower()
-        # Keep it simple and stable: company + title is usually enough. URL might change slightly.
-        # But user requested: company + title + location + application URL
         location = str(job.get("location", "")).strip().lower()
         url = str(job.get("url", "")).strip().lower()
         
         raw_fp = f"{company}|{title}|{location}|{url}"
-        return re.sub(r"[^a-z0-9]+", "_", raw_fp)
+        import hashlib
+        return hashlib.md5(raw_fp.encode('utf-8')).hexdigest()[:12]
         
     def is_retained(self, raw_job: dict, now: datetime) -> bool:
         retention_days = self.config.get("global", {}).get("retention_days", 30)
