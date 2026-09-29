@@ -115,6 +115,7 @@ async function loadData() {
         if (!response.ok) throw new Error('Failed to fetch');
         const data = await response.json();
         STATE.jobs = Array.isArray(data) ? data : (data.jobs || []);
+        STATE.all_sources = data.all_sources || [];
         STATE.jobs.forEach(j => {
             if (j.location) j.location = extractCountry(j.location);
         });
@@ -133,6 +134,8 @@ function processMetadata() {
     let cseCount = 0;
     internshipsOnly.forEach(job => {
         if (job.categories && job.categories.length > 0) cseCount++;
+    });
+    STATE.jobs.forEach(job => {
         if (job.categories) job.categories.forEach(c => STATE.categories.add(c));
         if (job.company) STATE.companies.add(job.company);
         if (job.source) STATE.sources.add(job.source);
@@ -303,9 +306,20 @@ function populateFilterDropdowns() {
     }
     const navSourcesDropdown = document.getElementById('nav-sources-dropdown');
     if (navSourcesDropdown) {
-        navSourcesDropdown.innerHTML = Array.from(STATE.sources).sort().map(s => 
+        const activeSources = Array.from(STATE.sources).sort();
+        const inactiveSources = (STATE.all_sources || []).filter(s => !STATE.sources.has(s)).sort();
+        
+        let html = activeSources.map(s => 
             `<a href="#" onclick="openSource('${s.replace(/'/g,"\\'")}')">${s}</a>`
         ).join('');
+        
+        if (inactiveSources.length > 0) {
+            html += '<div style="padding: 8px 16px; font-size: 0.75rem; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.5px; border-top: 1px solid #E5E7EB; margin-top: 4px; padding-top: 12px;">No Active Openings</div>';
+            html += inactiveSources.map(s => 
+                `<a href="#" onclick="openSource('${s.replace(/'/g,"\\'")}')" style="color: #9CA3AF;">${s}</a>`
+            ).join('');
+        }
+        navSourcesDropdown.innerHTML = html;
     }
 }
 
@@ -410,6 +424,11 @@ function applyFiltersAndRender() {
     if (filtered.length === 0) {
         els.resultsGrid.innerHTML = '';
         els.emptyState.hidden = false;
+        if (STATE.filters.source) {
+            els.emptyState.innerHTML = `<div><h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 8px;">No active openings</h3><p>The source <b>${STATE.filters.source}</b> currently has no active listings for both internships and jobs.</p></div>`;
+        } else {
+            els.emptyState.innerHTML = 'No internships or jobs found matching your criteria.';
+        }
     } else {
         els.emptyState.hidden = true;
         els.resultsGrid.innerHTML = filtered.map(job => createListCard(job)).join('');

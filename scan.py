@@ -407,6 +407,7 @@ class InternshipScannerPipeline:
         out_data = {
             "generated_at": now.isoformat(),
             "config": {"retention_days": self.config.get("global", {}).get("retention_days", 30)},
+            "all_sources": list(adapters.keys()),
             "source_meta": {},
             "jobs": [j.to_dict() for j in processed_jobs.values()]
         }
