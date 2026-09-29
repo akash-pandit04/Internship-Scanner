@@ -25,7 +25,12 @@
                 <a href="#" class="nav-link" data-navigate="listing" data-filter="jobs">Jobs</a>
                 <a href="#categories" class="nav-link" data-navigate="landing">Roles</a>
                 <a href="#companies" class="nav-link" data-navigate="landing">Companies</a>
-                <a href="#" class="nav-link" data-navigate="listing" data-filter="remote">Remote</a>
+                <div class="nav-dropdown">
+                    <a href="#" class="nav-link">Categories <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg></a>
+                    <div class="nav-dropdown-content" id="nav-categories-dropdown">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
                 <a href="#about" class="nav-link" data-navigate="landing">About</a>
             </div>
         </div>

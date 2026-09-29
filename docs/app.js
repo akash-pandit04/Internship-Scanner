@@ -265,6 +265,13 @@ function populateFilterDropdowns() {
     const locs = new Set();
     STATE.jobs.forEach(j => { if (j.location) locs.add(j.location); });
     Array.from(locs).sort().forEach(l => els.fLocation.add(new Option(l, l)));
+
+    const navCatDropdown = document.getElementById('nav-categories-dropdown');
+    if (navCatDropdown) {
+        navCatDropdown.innerHTML = Array.from(STATE.categories).sort().map(c => 
+            `<a href="#" onclick="openCategory('${c.replace(/'/g,"\\'")}')">${c}</a>`
+        ).join('');
+    }
 }
 
 function renderLanding() {
