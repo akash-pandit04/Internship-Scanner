@@ -116,6 +116,7 @@ async function loadData() {
         const data = await response.json();
         STATE.jobs = Array.isArray(data) ? data : (data.jobs || []);
         STATE.all_sources = data.all_sources || [];
+        STATE.total_endpoints = data.total_endpoints || STATE.all_sources.length;
         STATE.jobs.forEach(j => {
             if (j.location) j.location = extractCountry(j.location);
         });
@@ -144,7 +145,7 @@ function processMetadata() {
     els.statTotal.textContent = STATE.jobs.length;
     els.statCse.textContent = cseCount;
     els.statEmployers.textContent = STATE.companies.size;
-    els.statSources.textContent = STATE.sources.size;
+    els.statSources.textContent = STATE.total_endpoints || STATE.sources.size;
     
     // Fresh Today Count
     const now = new Date();
