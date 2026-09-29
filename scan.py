@@ -275,7 +275,31 @@ class InternshipScannerPipeline:
                 raw["employment_type"] = ""
             metrics["normalized"] += 1
                 
+
+            title_lower = str(raw.get("title", "")).lower()
+            reject_keywords = ["(m/w/d)", "(f/m/d)", "werkstudent", "praktikant", "gyakornok", 
+                               "développeur", "ingénieur", "alternance", "stagaire", "stage", 
+                               "managerin", "creatorin", "mensch"]
+            if any(k in title_lower for k in reject_keywords):
+                metrics["schema_rejected"] += 1
+                rejected_jobs.append({"reason": "non_english", "job": raw})
+                continue
+            
+            try:
+                from langdetect import detect, DetectorFactory
+                DetectorFactory.seed = 0
+                text_to_detect = str(raw.get("title", "")) + ". " + str(raw.get("company", ""))
+                lang = detect(text_to_detect)
+                if lang not in ['en']:
+                    if not any(k in title_lower for k in ["engineer", "developer", "analyst", "intern"]):
+                        metrics["schema_rejected"] += 1
+                        rejected_jobs.append({"reason": "non_english", "job": raw})
+                        continue
+            except Exception:
+                pass
+            
             # 2. Schema Validation
+
             if not validate_job_schema(raw):
                 metrics["schema_rejected"] += 1
                 rejected_jobs.append({"reason": "schema", "job": raw})
