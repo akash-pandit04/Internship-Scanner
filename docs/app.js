@@ -556,13 +556,18 @@ window.openDetail = function(id) {
         </ul>
         `;
     }
-    if (!desc.includes('<')) desc = `<div style="white-space: pre-wrap; font-family: inherit;">${desc.trim()}</div>`;
+    
     
     if (typeof marked !== 'undefined' && typeof DOMPurify !== 'undefined') {
-        els.detailDesc.innerHTML = DOMPurify.sanitize(marked.parse(desc));
+        let safeDesc = '
+' + desc.trim();
+        els.detailDesc.innerHTML = DOMPurify.sanitize(marked.parse(safeDesc));
     } else {
+        if (!desc.includes('<')) desc = `<div style="white-space: pre-wrap; font-family: inherit;">${desc.trim()}</div>`;
         els.detailDesc.innerHTML = desc;
     }
+
+
 
     
     const tags = [...(job.categories||[]), ...(job.skills||[])];
