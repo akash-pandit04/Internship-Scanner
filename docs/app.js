@@ -2,6 +2,18 @@
  * Internship Scanner v1.3.1 - Exact UI Match
  */
 
+
+function extractCountry(loc) {
+    if (!loc) return null;
+    let parts = loc.split(',');
+    let country = parts[parts.length - 1].trim();
+    if (country.toLowerCase() === 'us' || country.toLowerCase() === 'united states' || country.toLowerCase() === 'united states of america') return 'USA';
+    if (country.toLowerCase() === 'uk' || country.toLowerCase() === 'great britain') return 'United Kingdom';
+    country = country.replace(/[^a-zA-Z\s\-]/g, '').trim();
+    if (country.toLowerCase() === 'remote') return 'Remote';
+    return country || 'Unknown';
+}
+
 window.STATE = {
     jobs: [],
     categories: new Set(),
@@ -103,6 +115,10 @@ async function loadData() {
         if (!response.ok) throw new Error('Failed to fetch');
         const data = await response.json();
         STATE.jobs = Array.isArray(data) ? data : (data.jobs || []);
+        STATE.jobs.forEach(j => {
+            if (j.location) j.location = extractCountry(j.location);
+        });
+
         processMetadata();
         populateFilterDropdowns();
         renderLanding();
