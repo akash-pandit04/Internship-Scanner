@@ -157,7 +157,7 @@ button, input, select { font-family: inherit; }
 
 /* Detail Page Layout */
 .detail-layout { display: flex; flex-direction: column; gap: 24px; }
-.breadcrumb { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px; }
+.breadcrumb { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px; display: flex; align-items: center; flex-wrap: wrap; }
 .chevron { margin: 0 8px; }
 .detail-header-card { background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; display: flex; justify-content: space-between; align-items: flex-start; }
 .detail-header-main { display: flex; gap: 24px; }

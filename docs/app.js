@@ -84,6 +84,8 @@ const els = {
     detailApplyBtn: document.getElementById('detail-apply-btn'),
     detailDesc: document.getElementById('detail-desc-content'),
     detailSkills: document.getElementById('detail-skills-tags'),
+    sectionSkills: document.getElementById('section-skills'),
+    sideCategoryRow: document.getElementById('side-category-row'),
     
     sideCompany: document.getElementById('side-company'),
     sideLocation: document.getElementById('side-location'),
@@ -504,9 +506,11 @@ window.openDetail = function(id) {
         els.detailCatBadge.textContent = job.categories[0];
         els.detailCatBadge.hidden = false;
         els.sideCategory.textContent = job.categories.join(', ');
+        if(els.sideCategoryRow) els.sideCategoryRow.style.display = '';
     } else {
         els.detailCatBadge.hidden = true;
         els.sideCategory.textContent = 'None';
+        if(els.sideCategoryRow) els.sideCategoryRow.style.display = 'none';
     }
 
     const timeAgo = formatTimeAgo(new Date(job.posted_at||job.fetched_at));
@@ -529,11 +533,12 @@ window.openDetail = function(id) {
         </ul>
         `;
     }
-    if (!desc.includes('<')) desc = desc.split('\n').map(p => p.trim() ? `<p>${p}</p>` : '').join('');
+    if (!desc.includes('<')) desc = `<div style="white-space: pre-wrap; font-family: inherit;">${desc.trim()}</div>`;
     els.detailDesc.innerHTML = desc;
     
     const tags = [...(job.categories||[]), ...(job.skills||[])];
     els.detailSkills.innerHTML = tags.map(t=>`<span class="badge badge-blue">${t}</span>`).join('');
+    if(els.sectionSkills) els.sectionSkills.style.display = tags.length ? '' : 'none';
     
     // Side
     els.sideCompany.innerHTML = `${job.company} <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>`;
@@ -541,7 +546,7 @@ window.openDetail = function(id) {
     els.sideRemote.textContent = job.remote ? 'Remote' : 'On-site';
     els.sideSource.textContent = job.source;
     els.sideUpdated.textContent = timeAgo;
-    els.sideId.textContent = job.id || 'Not provided';
+    if(els.sideId) els.sideId.textContent = job.id || 'Not provided';
     
     switchView('view-detail');
 };
