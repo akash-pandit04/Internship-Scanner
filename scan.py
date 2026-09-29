@@ -460,7 +460,6 @@ class InternshipScannerPipeline:
         base_url = "https://internshipscanner.com" # Placeholder base URL
         
         url_nodes = []
-        import re
         for j in processed_jobs.values():
             slug = re.sub(r'[^a-z0-9]+', '-', f"{j.title}-{j.company}".lower()).strip('-')
             url = f"{base_url}/#!/job/{slug}/{j.id}"
