@@ -54,10 +54,10 @@ def check_jobs_json():
             sys.exit(1)
         seen_urls.add(job["url"])
         
-        # Eligibility check
-        elig = determine_eligibility(job.get('title', ''), job.get('description', ''), job.get('employment_type', ''))
-        if elig != EligibilityStatus.ELIGIBLE:
-            print(f"Data Quality Error: Non-internship job made it to output -> {job.get('title')}")
+        # Eligibility check has been relaxed because the platform now retains full-time jobs
+        # Just ensure job_type field exists
+        if "job_type" not in job:
+            print(f"Data Quality Error: job_type missing -> {job.get('title')}")
             sys.exit(1)
             
     print("Success: All jobs passed data quality checks.")
