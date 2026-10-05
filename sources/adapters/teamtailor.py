@@ -1,0 +1,82 @@
+import requests
+import json
+from typing import List, Dict, Any
+from sources.base import BaseSource
+
+def _companies() -> List[Dict[str, str]]:
+    from pathlib import Path
+    try:
+        p = Path("companies.json")
+        data = json.loads(p.read_text(encoding="utf-8-sig"))
+        return data.get("teamtailor", [])
+    except Exception:
+        return []
+
+class TeamtailorSource(BaseSource):
+    name = "teamtailor"
+
+    def fetch(self) -> List[Dict[str, Any]]:
+        out = []
+        headers = {"User-Agent": "Mozilla/5.0"}
+        for board_data in _companies():
+            board = board_data.get("id")
+            if not board:
+                continue
+
+            # Check if it's a full domain or just a tenant
+            if "." in board:
+                url = f"https://{board}/jobs.json"
+            else:
+                url = f"https://{board}.teamtailor.com/jobs.json"
+                
+            try:
+                r = requests.get(url, headers=headers, timeout=10)
+                if r.status_code != 200:
+                    continue
+
+                data = r.json()
+                jobs = data.get("items", [])
+                
+                for j in jobs:
+                    job_id = str(j.get("id", ""))
+                    title = j.get("title", "")
+                    if not title:
+                        continue
+
+                    # some jsonfeeds use content_html
+                    job_url = j.get("url", "")
+                    updated_at = j.get("date_published", "")
+                    
+                    record = {
+                        "id": job_id,
+                        "title": title,
+                        "company": board_data.get("name", board),
+                        "url": job_url,
+                        "location": "", # jsonfeed format might lack location at top level
+                        "descriptionPlain": "",
+                        "publishedAt": updated_at
+                    }
+                    out.append(record)
+            except Exception:
+                pass
+                
+        return self.normalize(out)
+
+    def normalize(self, raw_jobs: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        normalized = []
+        for j in raw_jobs:
+            normalized.append({
+                "id": j["id"],
+                "title": j["title"],
+                "company": j["company"],
+                "url": j["url"],
+                "location": j["location"],
+                "remote": "remote" in j["location"].lower() or "remote" in j["title"].lower(),
+                "posted_at": j["publishedAt"],
+                "updated_at": j["publishedAt"],
+                "source": self.name
+            })
+        return normalized
+
+from sources.registry import SourceRegistry
+SourceRegistry.register("teamtailor", TeamtailorSource)

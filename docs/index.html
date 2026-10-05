@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#0b3b84">
+    <title>Internship Scanner</title>
+    <meta name="description" content="Discover the latest software engineering internships and jobs. Automated daily scans across top tech companies.">
+    <meta name="keywords" content="software engineering internships, tech jobs, new grad roles, computer science internships">
+    <meta property="og:title" content="Internship Scanner | Top Tech Roles">
+    <meta property="og:description" content="Discover the latest software engineering internships and jobs. Automated daily scans across top tech companies.">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Internship Scanner | Top Tech Roles">
+    <meta name="twitter:description" content="Discover the latest software engineering internships and jobs.">
+    <link rel="canonical" id="canonical-url" href="https://example.com/">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
+<style>
+#detail-desc-content {
+    white-space: normal; /* override previous pre-wrap */
+    line-height: 1.6;
+}
+
+#detail-desc-content h1 { font-size: 1.5em; margin-top: 1.5em; margin-bottom: 0.5em; font-weight: 600; }
+#detail-desc-content h2 { font-size: 1.3em; margin-top: 1.5em; margin-bottom: 0.5em; font-weight: 600; }
+#detail-desc-content h3 { font-size: 1.1em; margin-top: 1.5em; margin-bottom: 0.5em; font-weight: 600; }
+
+#detail-desc-content ul, #detail-desc-content ol {
+    margin-left: 1.5em;
+    margin-bottom: 1em;
+}
+#detail-desc-content li {
+    margin-bottom: 0.5em;
+}
+#detail-desc-content p {
+    margin-bottom: 1em;
+}
+#detail-desc-content strong {
+    font-weight: 600;
+}
+</style>
+
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="main-nav">
+    <div class="nav-container">
+        <div class="nav-left">
+            <a href="#" class="nav-brand" data-navigate="landing">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="brand-icon"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg>
+                Internship Scanner
+            </a>
+            <div class="nav-links">
+                <a href="#" class="nav-link active" data-navigate="listing" data-filter="all">Internships</a>
+                <a href="#" class="nav-link" data-navigate="listing" data-filter="jobs">Jobs</a>
+                <div class="nav-dropdown">
+                    <a href="#" class="nav-link">Roles <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg></a>
+                    <div class="nav-dropdown-content" id="nav-roles-dropdown">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+                <div class="nav-dropdown">
+                    <a href="#" class="nav-link">Companies <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg></a>
+                    <div class="nav-dropdown-content" id="nav-companies-dropdown">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+                <div class="nav-dropdown">
+                    <a href="#" class="nav-link">Location <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg></a>
+                    <div class="nav-dropdown-content" id="nav-location-dropdown">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+                <div class="nav-dropdown">
+                    <a href="#" class="nav-link">Sources <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg></a>
+                    <div class="nav-dropdown-content" id="nav-sources-dropdown">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+                <div class="nav-dropdown">
+                    <a href="#" class="nav-link">Scan <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg></a>
+                    <div class="nav-dropdown-content" id="nav-scan-dropdown">
+                        <a href="#" onclick="openScan('24')">Last 24 Hours</a>
+                        <a href="#" onclick="openScan('72')">Last 3 Days</a>
+                        <a href="#" onclick="openScan('168')">Last 7 Days</a>
+                        <a href="#" onclick="openScan('336')">Last 14 Days</a>
+                        <a href="#" onclick="openScan('720')">Last 30 Days</a>
+                        <a href="#" onclick="openScan('all')">All Time</a>
+                    </div>
+                </div>
+                <a href="#" class="nav-link" data-navigate="listing" data-filter="remote">Remote</a>
+                <a href="#about" class="nav-link" data-navigate="landing">About</a>
+            </div>
+        </div>
+        
+        <div class="nav-right">
+            <form id="nav-search-form" class="nav-search">
+                <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="search" id="nav-search-input" placeholder="Search internships..." aria-label="Search internships">
+            </form>
+            
+            
+            <button class="mobile-menu-btn" aria-label="Toggle menu">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            </button>
+        </div>
+    </div>
+</nav>
+
+<main id="app-root">
+    
+    <!-- VIEW: LANDING PAGE -->
+    <div id="view-landing" class="view active-view">
+        
+        <section class="hero-section">
+            <div class="hero-content-wrapper">
+                <div class="hero-text">
+                    <h1 class="hero-title">Find internships<br>that match your skills.</h1>
+                    <p class="hero-subtitle">Fresh internships from multiple public job sources,<br>built for students. Updated every 24 hours.</p>
+                    
+                    <div class="hero-search-box">
+                        <form id="landing-search-form" class="search-form">
+                            <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                            <input type="search" id="landing-search-input" placeholder="Search title, company, skills, or location...">
+                            <button type="submit" class="btn btn-primary search-btn">Search</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="hero-illustration">
+                    <!-- Pure CSS/SVG representation of the illustration -->
+                    <div class="illu-tag tag-se">Software Engineering</div>
+                    <div class="illu-tag tag-ai">AI / ML</div>
+                    <div class="illu-tag tag-ds">Data Science</div>
+                    <svg viewBox="0 0 200 150" class="illu-person" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="100" cy="50" r="20" fill="#fcd34d" />
+                        <path d="M70 150 C 70 90, 130 90, 130 150 Z" fill="#3b82f6" />
+                        <rect x="60" y="90" width="60" height="40" rx="4" fill="#cbd5e1" transform="rotate(-15 60 90)" />
+                    </svg>
+                </div>
+            </div>
+            
+            <!-- Overlapping Stats -->
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <div class="stat-icon bg-blue"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg></div>
+                    <div class="stat-text">
+                        <div class="stat-num" id="stat-total">...</div>
+                        <div class="stat-label">All Opportunities</div>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon bg-indigo"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg></div>
+                    <div class="stat-text">
+                        <div class="stat-num" id="stat-cse">...</div>
+                        <div class="stat-label">CSE Internships</div>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon bg-cyan"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg></div>
+                    <div class="stat-text">
+                        <div class="stat-num" id="stat-employers">...</div>
+                        <div class="stat-label">Employers</div>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon bg-purple"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg></div>
+                    <div class="stat-text">
+                        <div class="stat-num" id="stat-sources">...</div>
+                        <div class="stat-label">Sources</div>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon bg-green" style="background:#10B981;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></div>
+                    <div class="stat-text">
+                        <div class="stat-num" id="stat-fresh">...</div>
+                        <div class="stat-label">Fresh Today</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="page-section">
+            <div class="section-container">
+                <div class="section-header">
+                    <h2>Fresh Internships</h2>
+                    <a href="#" class="view-all-link" data-navigate="listing" data-sort="newest">View all internships &rarr;</a>
+                </div>
+                <div class="cards-grid" id="landing-fresh-internships">
+                    <!-- Dynamic fresh cards -->
+                </div>
+            </div>
+        </section>
+
+        <section class="page-section bg-gray" style="background: #f8fafc; padding: 4rem 0;">
+            <div class="section-container">
+                <div class="section-header">
+                    <h2>All Opportunities</h2>
+                    <a href="#" class="view-all-link" data-navigate="listing">Filter results &rarr;</a>
+                </div>
+                <div class="cards-grid" id="landing-all-internships" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem;">
+                    <!-- Dynamic all cards -->
+                </div>
+                <div style="text-align: center; margin-top: 2rem;">
+                    <button class="btn btn-primary" onclick="document.querySelector('[data-navigate=listing]').click()">View with Advanced Filters</button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- VIEW: LISTING / SEARCH PAGE -->
+    <div id="view-listing" class="view">
+        <div class="page-container listing-layout">
+            
+            <aside class="sidebar-left">
+                <div class="sidebar-header">
+                    <div style="display:flex; align-items:center; gap:0.5rem;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line></svg>
+                        <h2 style="font-size: 1.1rem; margin:0;">Filters</h2>
+                    </div>
+                    <a href="#" id="btn-clear-filters" class="text-link">Clear All</a>
+                </div>
+                
+                <div class="filters-scroll">
+                    <form id="filters-form">
+                        
+                        <div class="filter-group">
+                            <label class="filter-label">View</label>
+                            <div class="radio-group">
+                                <label class="radio-label">
+                                    <input type="radio" name="f_mode" value="all" checked>
+                                    <span class="custom-radio"></span>
+                                    <span class="radio-text text-muted">All Opportunities (<span id="count-all">0</span>)</span>
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="f_mode" value="cse">
+                                    <span class="custom-radio"></span>
+                                    <span class="radio-text">CSE Opportunities (<span id="count-cse-only">0</span>)</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="filter-group">
+                            <label class="filter-label">Time posted</label>
+                            <div class="radio-group">
+                                <label class="radio-label">
+                                    <input type="radio" name="f_time" value="all" checked>
+                                    <span class="custom-radio"></span>
+                                    <span class="radio-text">Any time</span>
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="f_time" value="24">
+                                    <span class="custom-radio"></span>
+                                    <span class="radio-text">Past 24 hours</span>
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="f_time" value="72">
+                                    <span class="custom-radio"></span>
+                                    <span class="radio-text">Past 3 days</span>
+                                </label>
+                                <label class="radio-label">
+                                      <input type="radio" name="f_time" value="168">
+                                      <span class="custom-radio"></span>
+                                      <span class="radio-text">Past 7 days</span>
+                                  </label>
+                                  <label class="radio-label">
+                                      <input type="radio" name="f_time" value="336">
+                                      <span class="custom-radio"></span>
+                                      <span class="radio-text">Past 14 days</span>
+                                  </label>
+                                  <label class="radio-label">
+                                      <input type="radio" name="f_time" value="720">
+                                    <span class="custom-radio"></span>
+                                    <span class="radio-text">Past 30 days</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="filter-group">
+                            <label class="filter-label">Search</label>
+                            <div class="input-with-icon">
+                                <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                                <input type="search" id="listing-sidebar-search" placeholder="Search title, company...">
+                            </div>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label for="f-category" class="filter-label">CSE Role</label>
+                            <select id="f-category" class="filter-select">
+                                <option value="">All Roles</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-group">
+                            <label for="f-company" class="filter-label">Company</label>
+                            <select id="f-company" class="filter-select">
+                                <option value="">All Companies</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-group">
+                            <label for="f-location" class="filter-label">Location</label>
+                            <select id="f-location" class="filter-select">
+                                <option value="">Any Location</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-group">
+                            <label for="f-remote" class="filter-label">Remote Status</label>
+                            <select id="f-remote" class="filter-select">
+                                <option value="">Any</option>
+                                <option value="remote">Remote Only</option>
+                                <option value="onsite">On-site Only</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-group">
+                            <label for="f-source" class="filter-label">Source</label>
+                            <select id="f-source" class="filter-select">
+                                <option value="">All Sources</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label for="f-sort-sidebar" class="filter-label">Sort By</label>
+                            <select id="f-sort-sidebar" class="filter-select">
+                                <option value="newest">Newest First</option>
+                                <option value="company">Company A-Z</option>
+                                <option value="relevance">Relevance</option>
+                            </select>
+                        </div>
+
+                        <button type="button" class="btn btn-primary full-width" style="margin-top: 1rem;">Apply Filters</button>
+                    </form>
+                </div>
+            </aside>
+
+            <section class="main-content">
+                <div class="results-header">
+                    <div>
+                        <h1 id="results-count-title">... CSE internships</h1>
+                        <p class="results-subtitle" id="results-count-subtitle">Showing CSE-qualified internships from ... fresh eligible internships.</p>
+                    </div>
+                    <div class="sort-top">
+                        <label for="f-sort-top">Sort By</label>
+                        <select id="f-sort-top" class="filter-select outline-select">
+                            <option value="newest">Newest First</option>
+                            <option value="company">Company A-Z</option>
+                            <option value="relevance">Relevance</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="listing-results-grid" class="cards-list">
+                    <!-- List Cards injected here -->
+                </div>
+
+                <div id="listing-empty-state" class="empty-state" hidden>
+                    <h3>No internships match your filters.</h3>
+                    <p>Try adjusting your search criteria or clearing filters.</p>
+                    <button class="btn btn-outline" onclick="document.getElementById('btn-clear-filters').click()">Clear Filters</button>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- VIEW: DETAIL PAGE -->
+    <div id="view-detail" class="view">
+        <div class="page-container detail-layout">
+            
+            <div class="breadcrumb">
+                <a href="#" data-navigate="listing" style="display:inline-flex;align-items:center;gap:4px;color:var(--text-muted);text-decoration:none;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Internships</a> 
+                <span class="chevron">&rsaquo;</span> 
+                <span id="breadcrumb-title">...</span>
+            </div>
+
+            <div class="detail-header-card">
+                <div class="detail-header-main">
+                    <img id="detail-logo" src="" class="company-logo-large" alt="Company Logo" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'64\' height=\'64\'><rect width=\'64\' height=\'64\' fill=\'%23f1f5f9\'/><text x=\'50%\' y=\'50%\' font-family=\'sans-serif\' font-size=\'24\' font-weight=\'bold\' fill=\'%2394a3b8\' text-anchor=\'middle\' dominant-baseline=\'central\'>?</text></svg>'">
+                    <div class="detail-header-text">
+                        <h1 id="detail-title">...</h1>
+                        <div class="detail-company-link">
+                            <span id="detail-company-name">...</span> <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                        </div>
+                        <div class="detail-tags-row">
+                            <span class="meta-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> <span id="detail-location-text">...</span></span>
+                            <span class="meta-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg> <span id="detail-remote-text">...</span></span>
+                            <span class="badge badge-blue" id="detail-cat-badge">...</span>
+                        </div>
+                        <div class="detail-meta-row text-muted" style="margin-top: 1rem; font-size: 0.85rem;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> <span id="detail-updated">...</span>
+                            <span style="margin:0 0.5rem">•</span>
+                            Source: <span id="detail-source-text">...</span>
+                            
+                        </div>
+                    </div>
+                </div>
+                <div class="detail-header-actions">
+                    <a href="#" id="detail-apply-btn" target="_blank" class="btn btn-primary btn-large">Apply Now <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg></a>
+                    <div class="action-buttons-row">
+                        <button class="btn btn-outline" onclick="alert('Saved to favorites!'); this.innerHTML = '<svg width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'currentColor\' stroke=\'currentColor\' stroke-width=\'2\'><path d=\'M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z\'></path></svg> Saved'"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg> Save</button>
+                        <button class="btn btn-outline" onclick="navigator.clipboard.writeText(window.location.href); alert('Link copied to clipboard!')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg> Share</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="detail-body">
+                <div class="detail-content-main">
+                    <section id="section-about" class="content-section">
+                        <h2>About this internship</h2>
+                        <div id="detail-desc-content" class="html-content"></div>
+                    </section>
+                    
+                    <section id="section-skills" class="content-section">
+                        <h2>Skills & Roles</h2>
+                        <div id="detail-skills-tags" class="tags-row"></div>
+                    </section>
+                </div>
+
+                <div class="detail-sidebar-right">
+                    <div class="info-card">
+                        <div class="info-row">
+                            <div class="info-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg></div>
+                            <div class="info-data">
+                                <span class="label">Company</span>
+                                <span class="val text-blue" id="side-company">... <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg></span>
+                            </div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg></div>
+                            <div class="info-data">
+                                <span class="label">Location</span>
+                                <span class="val" id="side-location">...</span>
+                            </div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></div>
+                            <div class="info-data">
+                                <span class="label">Work Type</span>
+                                <span class="val" id="side-remote">...</span>
+                            </div>
+                        </div>
+                        <div class="info-row" id="side-category-row">
+                            <div class="info-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg></div>
+                            <div class="info-data">
+                                <span class="label">Role</span>
+                                <span class="val" id="side-category">...</span>
+                            </div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg></div>
+                            <div class="info-data">
+                                <span class="label">Source</span>
+                                <span class="val" id="side-source">...</span>
+                            </div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg></div>
+                            <div class="info-data">
+                                <span class="label">Last Updated</span>
+                                <span class="val" id="side-updated">...</span>
+                            </div>
+                        </div>
+                        
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</main>
+<script src="app.js"></script>
+</body>
+</html>

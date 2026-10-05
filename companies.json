@@ -1,0 +1,243 @@
+{
+    "greenhouse": [
+        {
+            "id": "canonical",
+            "name": "Canonical",
+            "region": "Global",
+            "enabled": true
+        },
+        {
+            "id": "stripe",
+            "name": "Stripe",
+            "region": "Global",
+            "enabled": true
+        },
+        {
+            "id": "fivetran",
+            "name": "Fivetran",
+            "region": "Global",
+            "enabled": true
+        },
+        {
+            "id": "discord",
+            "name": "Discord",
+            "region": "Global",
+            "enabled": true
+        },
+        {
+            "id": "razorpaysoftwareprivatelimited",
+            "name": "Razorpay",
+            "region": "India",
+            "enabled": true
+        },
+        {
+            "id": "thoughtworks",
+            "name": "ThoughtWorks",
+            "region": "India/APAC",
+            "enabled": true
+        },
+        {
+            "id": "rubrik",
+            "name": "Rubrik",
+            "region": "India/APAC",
+            "enabled": true
+        },
+        {
+            "id": "celonis",
+            "name": "Celonis",
+            "region": "Western Europe",
+            "enabled": true
+        },
+        {
+            "id": "databricks",
+            "name": "Databricks",
+            "region": "North America",
+            "enabled": true
+        },
+        {
+            "id": "dropbox",
+            "name": "Dropbox",
+            "region": "Remote",
+            "enabled": true
+        },
+        {
+            "id": "figma",
+            "name": "Figma",
+            "region": "Global",
+            "enabled": true
+        },
+        {
+            "id": "stripe",
+            "name": "Stripe",
+            "region": "Global",
+            "enabled": true
+        },
+        {
+            "id": "roblox",
+            "name": "Roblox",
+            "region": "Global",
+            "enabled": true
+        },
+        {
+            "id": "lyft",
+            "name": "Lyft",
+            "region": "Global",
+            "enabled": true
+        },
+        {
+            "id": "datadog",
+            "name": "Datadog",
+            "region": "Global",
+            "enabled": true
+        },
+        {
+            "id": "singlestore",
+            "name": "SingleStore",
+            "region": "US",
+            "enabled": true
+        },
+        {
+            "id": "scaleai",
+            "name": "Scale AI",
+            "region": "Global",
+            "enabled": true
+        },
+        {
+            "id": "vercel",
+            "name": "Vercel",
+            "region": "US",
+            "enabled": true
+        }
+    ],
+    "lever": [
+        {
+            "id": "cred",
+            "name": "CRED",
+            "region": "India",
+            "enabled": true
+        }
+    ],
+    "ashby": [
+        {
+            "id": "notion",
+            "name": "Notion",
+            "region": "Global",
+            "enabled": true
+        },
+        {
+            "id": "ramp",
+            "name": "Ramp",
+            "region": "Global",
+            "enabled": true
+        },
+        {
+            "id": "linear",
+            "name": "Linear",
+            "region": "Global",
+            "enabled": true
+        },
+        {
+            "id": "ycombinator",
+            "name": "Ycombinator",
+            "region": "Global",
+            "enabled": true
+        },
+        {
+            "id": "replit",
+            "name": "Replit",
+            "region": "Global",
+            "enabled": true
+        },
+        {
+            "id": "perplexity",
+            "name": "Perplexity",
+            "region": "Global",
+            "enabled": true
+        },
+        {
+            "id": "opensea",
+            "name": "Opensea",
+            "region": "Global",
+            "enabled": true
+        },
+        {
+            "id": "plaid",
+            "name": "Plaid",
+            "region": "Global",
+            "enabled": true
+        },
+        {
+            "id": "cohere",
+            "name": "Cohere",
+            "region": "Global",
+            "enabled": true
+        }
+    ],
+    "smartrecruiters": [
+        {
+            "id": "canva",
+            "name": "Canva",
+            "region": "Global",
+            "enabled": true
+        },
+        {
+            "id": "BoschGroup",
+            "name": "Boschgroup",
+            "region": "Global",
+            "enabled": true
+        },
+        {
+            "id": "smartrecruiters",
+            "name": "Smartrecruiters",
+            "region": "Global",
+            "enabled": true
+        }
+    ],
+    "ycombinator": false,
+    "themuse": false,
+    "personio": [
+        {
+            "id": "tngtech",
+            "name": "TNG Technology"
+        },
+        {
+            "id": "xitaso",
+            "name": "XITASO"
+        },
+        {
+            "id": "screeningeagle",
+            "name": "Screening Eagle"
+        }
+    ],
+    "bamboohr": [
+        {
+            "id": "lbmx",
+            "name": "LBMX"
+        }
+    ],
+    "recruitee": [
+        {
+            "id": "bunq",
+            "name": "Bunq"
+        }
+    ],
+    "teamtailor": [
+        {
+            "id": "career.teamtailor.com",
+            "name": "Teamtailor"
+        }
+    ],
+    "workday": [
+        {
+            "host": "wd5.myworkday.com",
+            "tenant": "example",
+            "report_name": "test"
+        }
+    ],
+    "jobvite": [
+        {
+            "company_id": "qY59Vfwa",
+            "name": "Universal Music"
+        }
+    ]
+}
